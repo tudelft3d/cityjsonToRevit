@@ -8,4 +8,15 @@
     <VendorId>Amir</VendorId>
     <VendorDescription>TUD</VendorDescription>
   </AddIn>
+  <AddIn Type="Command">
+    <Name>cityjsonToRevit</Name>
+    <Assembly>cityjsonToRevit.dll</Assembly>
+    <AddInId>0B89C8D6-1878-44A1-ABEF-06A6A7C1748B</AddInId>
+    <FullClassName>cityjsonToRevit.DbRunner</FullClassName>
+    <Text>DbRunner</Text>
+    <Description>Opens database file</Description>
+    <VendorId>Amir</VendorId>
+    <VendorDescription>TUD</VendorDescription>
+    <VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+  </AddIn>
 </RevitAddIns>

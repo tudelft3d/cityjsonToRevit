@@ -1,0 +1,6 @@
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.pdb
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.AssemblyReference.cache
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CoreCompileInputs.cache
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.pdb
