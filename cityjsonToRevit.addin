@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>ApplicationPlugin</Name>
+    <Assembly>cityjsonToRevit.dll</Assembly>
+    <AddInId>E91451D1-1405-4FD1-9E87-136DB5E7F443</AddInId>
+    <FullClassName>cityjsonToRevit.ExternalApplication</FullClassName>
+    <VendorId>Amir</VendorId>
+    <VendorDescription>TUD</VendorDescription>
+  </AddIn>
+</RevitAddIns>
