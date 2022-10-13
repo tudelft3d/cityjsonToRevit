@@ -5,3 +5,6 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonT
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.dll
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.pdb
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.addin
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.xml
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CopyComplete
