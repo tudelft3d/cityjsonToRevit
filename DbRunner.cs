@@ -13,7 +13,7 @@ using System.Collections;
 
 namespace cityjsonToRevit
 {
-    [TransactionAttribute(TransactionMode.Manual)]
+    [Transaction(TransactionMode.Manual)]
     class DbRunner : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
