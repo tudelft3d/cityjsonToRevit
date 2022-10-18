@@ -94,7 +94,8 @@ namespace cityjsonToRevit
                 DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
                 ds.ApplicationId = "Application id";
                 ds.ApplicationDataId = "Geometry object id";
-
+                //Add Building name to Direct Shape
+                ds.Name = "Abbas Bouazar";
                 ds.SetShape(result.GetGeometricalObjects());
             
         }
