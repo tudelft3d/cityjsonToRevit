@@ -41,7 +41,6 @@ namespace cityjsonToRevit
             List<XYZ> loopVertices = new List<XYZ>(4);
 
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-
             builder.OpenConnectedFaceSet(true);
             // create a pyramid with a square base 4' x 4' and 5' high
             double length = 4.0;
@@ -132,11 +131,17 @@ namespace cityjsonToRevit
                         using (StreamReader reader = new StreamReader(fileStream))
                         {
                             string json = reader.ReadToEnd();
-                            dynamic array = JsonConvert.DeserializeObject(json);
-                            foreach (var item in array)
+                            dynamic jCity = JsonConvert.DeserializeObject(json);
+                            List<XYZ> vertList = new List<XYZ>();
+                            foreach (var vertex in jCity.vertices)
                             {
-                                Console.WriteLine("{0}", item.Name);
+                                double x = vertex[0];
+                                double y = vertex[1];
+                                double z = vertex[2];
+                                XYZ vert = new XYZ(x, y, z);
+                                vertList.Add(vert);
                             }
+                            TaskDialog.Show("Performing on family document", "The plugin should run on project documents.\n");
                         }
                     }
                 }
