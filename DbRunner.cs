@@ -40,7 +40,7 @@ namespace cityjsonToRevit
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-            builder.OpenConnectedFaceSet(true);
+            builder.OpenConnectedFaceSet(false);
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
                 foreach (var boundary in boundaryGroup.boundaries)
@@ -59,8 +59,8 @@ namespace cityjsonToRevit
                     }
                 }
                 builder.CloseConnectedFaceSet();
-                builder.Target = TessellatedShapeBuilderTarget.Solid;
-                builder.Fallback = TessellatedShapeBuilderFallback.Abort;
+                builder.Target = TessellatedShapeBuilderTarget.AnyGeometry;
+                builder.Fallback = TessellatedShapeBuilderFallback.Mesh;
                 builder.Build();
                 builder.Clear();
                 TessellatedShapeBuilderResult result = builder.GetBuildResult();
