@@ -36,13 +36,13 @@ namespace cityjsonToRevit
             }
             return true;
         }
-        public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList)
+        public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer)
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
-            builder.OpenConnectedFaceSet(false);
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
+                builder.OpenConnectedFaceSet(false);
                 foreach (var boundary in boundaryGroup.boundaries)
                 {
                     loopVertices.Clear();
@@ -50,9 +50,23 @@ namespace cityjsonToRevit
                     {
                         foreach(var facePoint in facePoints)
                         {
-                            int VV = unchecked((int)facePoint.Value);
-                            XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
-                            loopVertices.Add(vertPoint);
+                            if (!facePoint.HasValues)
+                            {
+                                int VV = unchecked((int)facePoint.Value);
+                                XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
+                                loopVertices.Add(vertPoint);
+                            }
+                            else
+                            {
+                                foreach(var fp in facePoint)
+                                {
+                                    int VV = unchecked((int)fp.Value);
+                                    XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
+                                    loopVertices.Add(vertPoint);
+                                }
+
+                            }
+                            
                         }
                         builder.AddFace(new TessellatedFace(loopVertices, materialId));
 
@@ -68,8 +82,7 @@ namespace cityjsonToRevit
                 DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
                 ds.ApplicationId = "Application id";
                 ds.ApplicationDataId = "Geometry object id";
-                //Add Building name to Direct Shape
-                ds.Name = "Abbas Bouazar";
+                ds.Name = Namer;
                 ds.SetShape(result.GetGeometricalObjects());
             }
 
@@ -130,8 +143,12 @@ namespace cityjsonToRevit
                             {
                                 foreach(var objProperties in  objects)
                                 {
-
-                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList);
+                                        string attributeName = objects.Name;
+                                    if (objProperties.type == "Building")
+                                    {
+                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName);
+                                    }
+                                        
 
                                 }
                                 
