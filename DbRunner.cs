@@ -36,6 +36,26 @@ namespace cityjsonToRevit
             }
             return true;
         }
+        public List<string> lodReader(dynamic cityJ)
+        {
+            List<string> lods = new List<string>();
+            foreach (var objects in cityJ.CityObjects)
+            {
+                foreach(var obj in objects)
+                {
+                    foreach(var boundaryGroup in obj.geometry)
+                    {
+                        string lod = (string)boundaryGroup.lod;
+                        lods.Add(lod);
+                    }
+                }
+            }
+            return lods;
+                
+         }
+
+
+
         public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer)
         {
             List<XYZ> loopVertices = new List<XYZ>();
@@ -48,27 +68,45 @@ namespace cityjsonToRevit
                     loopVertices.Clear();
                     foreach (var facePoints in boundary)
                     {
-                        foreach(var facePoint in facePoints)
+                        bool levelCheck = false;
+                        foreach (var facePoint in facePoints)
                         {
+                            
                             if (!facePoint.HasValues)
                             {
                                 int VV = unchecked((int)facePoint.Value);
                                 XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
                                 loopVertices.Add(vertPoint);
                             }
-                            else
+                            //else if ((int)boundaryGroup.lod == 1.2)
+                            //{
+                            //    foreach(var fp in facePoint)
+                            //    {
+                            //        int VV = unchecked((int)fp.Value);
+                            //        XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
+                            //        loopVertices.Add(vertPoint);
+                            //    }
+
+                            //}
+                            else 
                             {
-                                foreach(var fp in facePoint)
+                                foreach (var fp in facePoint)
                                 {
                                     int VV = unchecked((int)fp.Value);
                                     XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
                                     loopVertices.Add(vertPoint);
                                 }
-
+                                builder.AddFace(new TessellatedFace(loopVertices, materialId));
+                                levelCheck = true;
+                                loopVertices.Clear();
                             }
                             
                         }
-                        builder.AddFace(new TessellatedFace(loopVertices, materialId));
+                        if (!levelCheck)
+                        { 
+                            builder.AddFace(new TessellatedFace(loopVertices, materialId));
+                        }
+                        
 
                     }
                 }
@@ -78,11 +116,12 @@ namespace cityjsonToRevit
                 builder.Build();
                 builder.Clear();
                 TessellatedShapeBuilderResult result = builder.GetBuildResult();
+                string lod = (string)boundaryGroup.lod;
 
                 DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
                 ds.ApplicationId = "Application id";
                 ds.ApplicationDataId = "Geometry object id";
-                ds.Name = Namer;
+                ds.Name = Namer + " -lod " +lod;
                 ds.SetShape(result.GetGeometricalObjects());
             }
 
@@ -139,17 +178,13 @@ namespace cityjsonToRevit
                                 XYZ vert = new XYZ(x, y, z);
                                 vertList.Add(vert);
                             }
+                            List<string> lll = lodReader(jCity);
                             foreach (var objects in jCity.CityObjects)
                             {
                                 foreach(var objProperties in  objects)
                                 {
                                         string attributeName = objects.Name;
-                                    if (objProperties.type == "Building")
-                                    {
                                         CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName);
-                                    }
-                                        
-
                                 }
                                 
                             }
