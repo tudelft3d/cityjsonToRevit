@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -59,6 +60,12 @@
   <ItemGroup>
     <Compile Include="DbRunner.cs" />
     <Compile Include="ExternalApplication.cs" />
+    <Compile Include="lodUserSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="lodUserSelect.Designer.cs">
+      <DependentUpon>lodUserSelect.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -67,6 +74,11 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="lodUserSelect.resx">
+      <DependentUpon>lodUserSelect.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

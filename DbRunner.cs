@@ -16,12 +16,16 @@ using Autodesk.Revit.Creation;
 using Document = Autodesk.Revit.DB.Document;
 using System.Xml.Linq;
 using Autodesk.Revit.DB.Architecture;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace cityjsonToRevit
 {
+
     [Transaction(TransactionMode.Manual)]
     class DbRunner : IExternalCommand
     {
+        internal System.Windows.Forms.ComboBox ComboBox1;
+
         static public bool CheckValidity(dynamic file)
         {
             if (file.CityObjects == null || file.type != "CityJSON" || file.version == null ||
@@ -36,8 +40,9 @@ namespace cityjsonToRevit
             }
             return true;
         }
-        public List<string> lodReader(dynamic cityJ)
+        public string lodSelecter(dynamic cityJ)
         {
+            string level = "";
             List<string> lods = new List<string>();
             foreach (var objects in cityJ.CityObjects)
             {
@@ -50,82 +55,98 @@ namespace cityjsonToRevit
                     }
                 }
             }
-            return lods;
-                
-         }
+            lods = lods.Distinct().ToList();
+            if (lods.Count == 0)
+            {
+                return lods.First();
+
+            }
+            else
+            {
+                using (lodUserSelect loder = new lodUserSelect(lods))
+                {
+                    loder.ShowDialog();
+                    level = loder._level;
+                }
+                return level;
+            }
+                  
+        }
 
 
 
-        public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer)
+        public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod)
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
-                builder.OpenConnectedFaceSet(false);
-                foreach (var boundary in boundaryGroup.boundaries)
+                if (Lod == (string)boundaryGroup.lod) 
                 {
-                    loopVertices.Clear();
-                    foreach (var facePoints in boundary)
+                    builder.OpenConnectedFaceSet(false);
+                    foreach (var boundary in boundaryGroup.boundaries)
                     {
-                        bool levelCheck = false;
-                        foreach (var facePoint in facePoints)
+                        loopVertices.Clear();
+                        foreach (var facePoints in boundary)
                         {
-                            
-                            if (!facePoint.HasValues)
+                            bool levelCheck = false;
+                            foreach (var facePoint in facePoints)
                             {
-                                int VV = unchecked((int)facePoint.Value);
-                                XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
-                                loopVertices.Add(vertPoint);
-                            }
-                            //else if ((int)boundaryGroup.lod == 1.2)
-                            //{
-                            //    foreach(var fp in facePoint)
-                            //    {
-                            //        int VV = unchecked((int)fp.Value);
-                            //        XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
-                            //        loopVertices.Add(vertPoint);
-                            //    }
 
-                            //}
-                            else 
-                            {
-                                foreach (var fp in facePoint)
+                                if (!facePoint.HasValues)
                                 {
-                                    int VV = unchecked((int)fp.Value);
+                                    int VV = unchecked((int)facePoint.Value);
                                     XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
                                     loopVertices.Add(vertPoint);
                                 }
-                                builder.AddFace(new TessellatedFace(loopVertices, materialId));
-                                levelCheck = true;
-                                loopVertices.Clear();
+                                //else if ((int)boundaryGroup.lod == 1.2)
+                                //{
+                                //    foreach(var fp in facePoint)
+                                //    {
+                                //        int VV = unchecked((int)fp.Value);
+                                //        XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
+                                //        loopVertices.Add(vertPoint);
+                                //    }
+
+                                //}
+                                else
+                                {
+                                    foreach (var fp in facePoint)
+                                    {
+                                        int VV = unchecked((int)fp.Value);
+                                        XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
+                                        loopVertices.Add(vertPoint);
+                                    }
+                                    builder.AddFace(new TessellatedFace(loopVertices, materialId));
+                                    levelCheck = true;
+                                    loopVertices.Clear();
+                                }
+
                             }
-                            
-                        }
-                        if (!levelCheck)
-                        { 
-                            builder.AddFace(new TessellatedFace(loopVertices, materialId));
-                        }
-                        
+                            if (!levelCheck)
+                            {
+                                builder.AddFace(new TessellatedFace(loopVertices, materialId));
+                            }
 
+
+                        }
                     }
+                    builder.CloseConnectedFaceSet();
+                    builder.Target = TessellatedShapeBuilderTarget.AnyGeometry;
+                    builder.Fallback = TessellatedShapeBuilderFallback.Mesh;
+                    builder.Build();
+                    builder.Clear();
+                    TessellatedShapeBuilderResult result = builder.GetBuildResult();
+                    string lod = (string)boundaryGroup.lod;
+
+                    DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
+                    ds.ApplicationId = "Application id";
+                    ds.ApplicationDataId = "Geometry object id";
+                    ds.Name = Namer + "-lod " + lod;
+                    ds.SetShape(result.GetGeometricalObjects());
                 }
-                builder.CloseConnectedFaceSet();
-                builder.Target = TessellatedShapeBuilderTarget.AnyGeometry;
-                builder.Fallback = TessellatedShapeBuilderFallback.Mesh;
-                builder.Build();
-                builder.Clear();
-                TessellatedShapeBuilderResult result = builder.GetBuildResult();
-                string lod = (string)boundaryGroup.lod;
 
-                DirectShape ds = DirectShape.CreateElement(doc, new ElementId(BuiltInCategory.OST_GenericModel));
-                ds.ApplicationId = "Application id";
-                ds.ApplicationDataId = "Geometry object id";
-                ds.Name = Namer + " -lod " +lod;
-                ds.SetShape(result.GetGeometricalObjects());
-            }
-
-            
+            }            
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -142,7 +163,7 @@ namespace cityjsonToRevit
             Material materialDef = materialsEnum.First();
 
 
-            using (Transaction trans = new Transaction(doc, "Importer"))
+            using (Transaction trans = new Transaction(doc, "Load CityJSON"))
             {
                 trans.Start();
 
@@ -178,13 +199,13 @@ namespace cityjsonToRevit
                                 XYZ vert = new XYZ(x, y, z);
                                 vertList.Add(vert);
                             }
-                            List<string> lll = lodReader(jCity);
+                            string lodSpec = lodSelecter(jCity);
                             foreach (var objects in jCity.CityObjects)
                             {
                                 foreach(var objProperties in  objects)
                                 {
                                         string attributeName = objects.Name;
-                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName);
+                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName, lodSpec);
                                 }
                                 
                             }

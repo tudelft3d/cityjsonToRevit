@@ -8,3 +8,5 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonT
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.dll
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.xml
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CopyComplete
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.lodUserSelect.resources
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.GenerateResource.cache
