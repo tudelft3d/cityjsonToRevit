@@ -204,8 +204,8 @@ namespace cityjsonToRevit
                             {
                                 foreach(var objProperties in  objects)
                                 {
-                                        string attributeName = objects.Name;
-                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName, lodSpec);
+                                        string attributeNames = objects.Name;
+                                        CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeNames, lodSpec);
                                 }
                                 
                             }
