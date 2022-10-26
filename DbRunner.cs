@@ -193,9 +193,9 @@ namespace cityjsonToRevit
                             List<XYZ> vertList = new List<XYZ>();
                             foreach (var vertex in jCity.vertices)
                             {
-                                double x = vertex[0];
-                                double y = vertex[1];
-                                double z = vertex[2];
+                                double x = vertex[0] * jCity.transform.scale[0] + jCity.transform.translate[0];
+                                double y = vertex[1] * jCity.transform.scale[1] + jCity.transform.translate[1]; ;
+                                double z = vertex[2] * jCity.transform.scale[2] + jCity.transform.translate[2]; ;
                                 XYZ vert = new XYZ(x, y, z);
                                 vertList.Add(vert);
                             }
