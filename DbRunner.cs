@@ -26,6 +26,50 @@ namespace cityjsonToRevit
     {
         internal System.Windows.Forms.ComboBox ComboBox1;
 
+        public List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
+        {
+            List <double> coord = new List<double>();
+            // Get the project location handle 
+            ProjectLocation projectLocation = document.ActiveProjectLocation;
+
+            // Show the information of current project location
+            XYZ origin = new XYZ(0, 0, 0);
+            ProjectPosition position = projectLocation.GetProjectPosition(origin);
+            if (null == position)
+            {
+                throw new Exception("No project position in origin point.");
+            }
+
+            // Format the prompt string to show the message.
+            String prompt = "Current project location information:\n";
+            prompt += "\n\t" + "Origin point position:";
+            prompt += "\n\t\t" + "Angle: " + position.Angle;
+            prompt += "\n\t\t" + "East to West offset: " + position.EastWest;
+            prompt += "\n\t\t" + "Elevation: " + position.Elevation;
+            prompt += "\n\t\t" + "North to South offset: " + position.NorthSouth;
+
+            // Angles are in radians when coming from Revit API, so we 
+            // convert to degrees for display
+            const double angleRatio = Math.PI / 180;   // angle conversion factor
+
+            SiteLocation site = projectLocation.GetSiteLocation();
+            double latDeg = site.Latitude / angleRatio;
+            double lonDeg = site.Longitude / angleRatio;
+            double ylatDeg = latDeg * (10000 * 1000 / 90);
+            double xlonDeg = lonDeg * (10000 * 1000 / 90);
+
+            prompt += "\n\t" + "Site location:";
+            prompt += "\n\t\t" + "Latitude: " + latDeg + "��";
+            prompt += "\n\t\t" + ylatDeg + " meter";
+            prompt += "\n\t\t" + "Longitude: " + lonDeg + "��";
+            prompt += "\n\t\t" + xlonDeg + " meter";
+            prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
+            coord.Add(xlonDeg);
+            coord.Add(ylatDeg);
+            // Give the user some information
+            TaskDialog.Show("Revit", prompt);
+            return coord;
+        }
         static public bool CheckValidity(dynamic file)
         {
             if (file.CityObjects == null || file.type != "CityJSON" || file.version == null ||
@@ -169,7 +213,8 @@ namespace cityjsonToRevit
 
                 var fileContent = string.Empty;
                 var filePath = string.Empty;
-
+                List<double> coord = ShowActiveProjectLocationUsage(doc);
+                XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     openFileDialog.Title = "Open CityJSON file";
@@ -190,13 +235,18 @@ namespace cityjsonToRevit
                         {
                             string json = reader.ReadToEnd();
                             dynamic jCity = JsonConvert.DeserializeObject(json);
+                            
                             List<XYZ> vertList = new List<XYZ>();
                             foreach (var vertex in jCity.vertices)
                             {
-                                double x = vertex[0] * jCity.transform.scale[0] + jCity.transform.translate[0];
-                                double y = vertex[1] * jCity.transform.scale[1] + jCity.transform.translate[1]; ;
-                                double z = vertex[2] * jCity.transform.scale[2] + jCity.transform.translate[2]; ;
-                                XYZ vert = new XYZ(x, y, z);
+                                double x = vertex[0] * jCity.transform.scale[0] + jCity.transform.translate[0] - coord[0];
+                                double y = vertex[1] * jCity.transform.scale[1] + jCity.transform.translate[1] - coord[1];
+                                double z = vertex[2] * jCity.transform.scale[2] + jCity.transform.translate[2];
+                                double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
+                                double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
+                                double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
+
+                                XYZ vert = new XYZ(xx, yy, zz);
                                 vertList.Add(vert);
                             }
                             string lodSpec = lodSelecter(jCity);
