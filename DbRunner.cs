@@ -111,12 +111,8 @@ namespace cityjsonToRevit
                     level = loder._level;
                 }
                 return level;
-            }
-                  
+            }  
         }
-
-
-
         public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod)
         {
             List<XYZ> loopVertices = new List<XYZ>();
@@ -195,20 +191,18 @@ namespace cityjsonToRevit
 
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
+
             //Selecting Default Material for shape creation
 
-
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
-
             IEnumerable<Material> materialsEnum
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
             Material materialDef = materialsEnum.First();
 
-
+            //starting transaction
             using (Transaction trans = new Transaction(doc, "Load CityJSON"))
             {
                 trans.Start();
-
                 var fileContent = string.Empty;
                 var filePath = string.Empty;
                 List<double> coord = ShowActiveProjectLocationUsage(doc);
@@ -238,16 +232,16 @@ namespace cityjsonToRevit
                             foreach (var vertex in jCity.vertices)
                             {
                                 double x = vertex[0] * jCity.transform.scale[0];
-                                //+ jCity.transform.translate[0];
+                                //+ jCity.transform.translate[0] - coord[0];
                                 double y = vertex[1] * jCity.transform.scale[1];
                                 double z = vertex[2] * jCity.transform.scale[2];
                                 double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
                                 double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
                                 double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
-
                                 XYZ vert = new XYZ(xx, yy, zz);
                                 vertList.Add(vert);
                             }
+
                             string lodSpec = lodSelecter(jCity);
                             foreach (var objects in jCity.CityObjects)
                             {
@@ -255,22 +249,13 @@ namespace cityjsonToRevit
                                 {
                                         string attributeName = objects.Name;
                                         CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName, lodSpec);
-                                }
-                                
+                                } 
                             }
                                 TaskDialog.Show("Good!", "All set! Let's Go!\n");
                         }
                     }
                 }
-
-
-
-                //CreateTessellatedShape(doc, materialDef.Id);
-
-
-                //MessageBox.Show(fileContent, "File Content at path: " + filePath, MessageBoxButtons.OK);
                 trans.Commit();
-
                 return Result.Succeeded;
             }
         }
