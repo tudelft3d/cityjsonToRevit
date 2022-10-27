@@ -17,6 +17,7 @@ using Document = Autodesk.Revit.DB.Document;
 using System.Xml.Linq;
 using Autodesk.Revit.DB.Architecture;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Newtonsoft.Json.Linq;
 
 namespace cityjsonToRevit
 {
@@ -88,9 +89,14 @@ namespace cityjsonToRevit
             List<string> lods = new List<string>();
             foreach (var objects in cityJ.CityObjects)
             {
+
                 foreach(var obj in objects)
                 {
-                    foreach(var boundaryGroup in obj.geometry)
+                    if (obj.geometry == null)
+                    {
+                        continue;
+                    }
+                    foreach (var boundaryGroup in obj.geometry)
                     {
                         string lod = (string)boundaryGroup.lod;
                         lods.Add(lod);
@@ -98,7 +104,7 @@ namespace cityjsonToRevit
                 }
             }
             lods = lods.Distinct().ToList();
-            if (lods.Count == 0)
+            if (lods.Count == 1)
             {
                 return lods.First();
 
@@ -117,8 +123,13 @@ namespace cityjsonToRevit
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+            if (cityObjProp.geometry == null)
+            {
+                return;
+            }
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
+
                 if (Lod == (string)boundaryGroup.lod) 
                 {
                     builder.OpenConnectedFaceSet(false);
@@ -137,16 +148,6 @@ namespace cityjsonToRevit
                                     XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
                                     loopVertices.Add(vertPoint);
                                 }
-                                //else if ((int)boundaryGroup.lod == 1.2)
-                                //{
-                                //    foreach(var fp in facePoint)
-                                //    {
-                                //        int VV = unchecked((int)fp.Value);
-                                //        XYZ vertPoint = new XYZ(verticesList[VV].X, verticesList[VV].Y, verticesList[VV].Z);
-                                //        loopVertices.Add(vertPoint);
-                                //    }
-
-                                //}
                                 else
                                 {
                                     foreach (var fp in facePoint)
