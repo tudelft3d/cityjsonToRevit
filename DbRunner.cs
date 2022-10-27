@@ -58,9 +58,9 @@ namespace cityjsonToRevit
 
             prompt += "\n\t" + "Site location:";
             prompt += "\n\t\t" + "Latitude: " + latDeg + "°";
-            prompt += "\n\t\t" + ylatDeg + " meter";
+            prompt += "\n\t\t" + ylatDeg + " meters";
             prompt += "\n\t\t" + "Longitude: " + lonDeg + "°";
-            prompt += "\n\t\t" + xlonDeg + " meter";
+            prompt += "\n\t\t" + xlonDeg + " meters";
             prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
             coord.Add(xlonDeg);
             coord.Add(ylatDeg);
