@@ -24,8 +24,6 @@ namespace cityjsonToRevit
     [Transaction(TransactionMode.Manual)]
     class DbRunner : IExternalCommand
     {
-        internal System.Windows.Forms.ComboBox ComboBox1;
-
         public List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
         {
             List <double> coord = new List<double>();
@@ -59,9 +57,9 @@ namespace cityjsonToRevit
             double xlonDeg = lonDeg * (10000 * 1000 / 90);
 
             prompt += "\n\t" + "Site location:";
-            prompt += "\n\t\t" + "Latitude: " + latDeg + "��";
+            prompt += "\n\t\t" + "Latitude: " + latDeg + "°";
             prompt += "\n\t\t" + ylatDeg + " meter";
-            prompt += "\n\t\t" + "Longitude: " + lonDeg + "��";
+            prompt += "\n\t\t" + "Longitude: " + lonDeg + "°";
             prompt += "\n\t\t" + xlonDeg + " meter";
             prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
             coord.Add(xlonDeg);
@@ -239,9 +237,10 @@ namespace cityjsonToRevit
                             List<XYZ> vertList = new List<XYZ>();
                             foreach (var vertex in jCity.vertices)
                             {
-                                double x = vertex[0] * jCity.transform.scale[0] + jCity.transform.translate[0] - coord[0];
-                                double y = vertex[1] * jCity.transform.scale[1] + jCity.transform.translate[1] - coord[1];
-                                double z = vertex[2] * jCity.transform.scale[2] + jCity.transform.translate[2];
+                                double x = vertex[0] * jCity.transform.scale[0];
+                                //+ jCity.transform.translate[0];
+                                double y = vertex[1] * jCity.transform.scale[1];
+                                double z = vertex[2] * jCity.transform.scale[2];
                                 double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
                                 double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
                                 double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
