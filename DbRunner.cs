@@ -18,6 +18,7 @@ using System.Xml.Linq;
 using Autodesk.Revit.DB.Architecture;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using Newtonsoft.Json.Linq;
+using DotSpatial.Projections;
 
 namespace cityjsonToRevit
 {
@@ -65,9 +66,29 @@ namespace cityjsonToRevit
             prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
             coord.Add(xlonDeg);
             coord.Add(ylatDeg);
+
+           
+
+
             // Give the user some information
             TaskDialog.Show("Revit", prompt);
             return coord;
+        }
+        public void UpdateSiteLocation(Document document, dynamic cityJ)
+        {
+            string espg = unchecked((string)cityJ.metadata.referenceSystem);
+            espg = espg.Substring(espg.Length - 4);
+            int espgNo = Int32.Parse(espg);
+            const double angleRatio = Math.PI / 180;
+            SiteLocation site = document.ActiveProjectLocation.GetSiteLocation();
+            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(espgNo);
+            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(4326);
+            double[] xy = { cityJ.transform.translate[0], cityJ.transform.translate[1]};
+            double[] z = { 0 };
+            Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
+            site.Latitude= xy[1] * angleRatio;
+            site.Longitude = xy[0] * angleRatio;
+
         }
         static public bool CheckValidity(dynamic file)
         {
@@ -242,7 +263,7 @@ namespace cityjsonToRevit
                                 XYZ vert = new XYZ(xx, yy, zz);
                                 vertList.Add(vert);
                             }
-
+                            UpdateSiteLocation(doc, jCity);
                             string lodSpec = lodSelecter(jCity);
                             foreach (var objects in jCity.CityObjects)
                             {

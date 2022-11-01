@@ -10,3 +10,5 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsof
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CopyComplete
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.lodUserSelect.resources
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.GenerateResource.cache
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\DotSpatial.Projections.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\DotSpatial.Projections.xml
