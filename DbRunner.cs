@@ -230,10 +230,17 @@ namespace cityjsonToRevit
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
             Material materialDef = materialsEnum.First();
 
+
             //starting transaction
             using (Transaction trans = new Transaction(doc, "Load CityJSON"))
             {
                 trans.Start();
+
+
+
+
+
+                
                 var fileContent = string.Empty;
                 var filePath = string.Empty;
                 List<double> coord = ShowActiveProjectLocationUsage(doc);
@@ -313,6 +320,16 @@ namespace cityjsonToRevit
                         }
                     }
                 }
+                Material cj00 = materialDef.Duplicate("cj-Building");
+                Material cj01 = materialDef.Duplicate("cj-Bridge");
+                Material cj02 = materialDef.Duplicate("cj-Group");
+                Material cj03 = materialDef.Duplicate("cj-Furniture");
+                Material cj04 = materialDef.Duplicate("cj-Landuse");
+                Material cj05 = materialDef.Duplicate("cj-Plants");
+                Material cj06 = materialDef.Duplicate("cj-Railway");
+                Material cj07 = materialDef.Duplicate("cj-Road");
+                Material cj08 = materialDef.Duplicate("cj-Tunnel");
+                Material cj09 = materialDef.Duplicate("cj-Water");
                 trans.Commit();
                 return Result.Succeeded;
             }
