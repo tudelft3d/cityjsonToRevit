@@ -30,16 +30,16 @@ namespace cityjsonToRevit
         public int espgNum(dynamic cityJ)
         {
             string espg = unchecked((string)cityJ.metadata.referenceSystem);
-            int found = espg.LastIndexOf(":");
-            if (found == 0)
+            int found = espg.LastIndexOf("/");
+            if (found == -1)
             {
-                found = espg.LastIndexOf("/");
+                found = espg.LastIndexOf(":");
             }
             espg = espg.Substring(found + 1);
             int espgNo = Int32.Parse(espg);
             return espgNo;
         }
-        public List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
+        private List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
         {
             List<double> coord = new List<double>();
             // Get the project location handle 
@@ -83,7 +83,7 @@ namespace cityjsonToRevit
             TaskDialog.Show("Revit", prompt);
             return coord;
         }
-        public void UpdateSiteLocation(Document document, dynamic cityJ)
+        private void UpdateSiteLocation(Document document, dynamic cityJ)
         {
             const double angleRatio = Math.PI / 180;
             SiteLocation site = document.ActiveProjectLocation.GetSiteLocation();
@@ -110,7 +110,7 @@ namespace cityjsonToRevit
             }
             return true;
         }
-        public string lodSelecter(dynamic cityJ)
+        private string lodSelecter(dynamic cityJ)
         {
             string level = "";
             List<string> lods = new List<string>();
@@ -146,7 +146,7 @@ namespace cityjsonToRevit
                 return level;
             }
         }
-        public void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod)
+        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod)
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
@@ -214,7 +214,7 @@ namespace cityjsonToRevit
 
             }
         }
-         public List<Material> matGenerator(Document doc)
+         private List<Material> matGenerator(Document doc)
          {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             IEnumerable<Material> materialsEnum
@@ -304,6 +304,48 @@ namespace cityjsonToRevit
             return mats;
          }
 
+        private Material matSelector(List<Material> materials, string type, Document doc)
+        {
+            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
+            IEnumerable<Material> materialsEnum
+              = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
+            Material m = materialsEnum.First();
+            switch (type) 
+            {
+                case "Building": m = materials[0]; break;
+                case "BuildingPart": m = materials[0]; break;
+                case "BuildingInstallation": m = materials[0]; break;
+                case "BuildingConstructiveElement": m = materials[0]; break;
+                case "BuildingFurniture": m = materials[0]; break;
+                case "BuildingStorey": m = materials[0]; break;
+                case "BuildingRoom": m = materials[0]; break;
+                case "BuildingUnit": m = materials[0]; break;
+                case "Bridge": m = materials[1]; break;
+                case "BridgePart": m = materials[1]; break;
+                case "BridgeInstallation": m = materials[1]; break;
+                case "BridgeConstructiveElement": m = materials[1]; break;
+                case "BridgeRoom": m = materials[1]; break;
+                case "BridgeFurniture": m = materials[1]; break;
+                case "CityObjectGroup": m = materials[2]; break;
+                case "CityFurniture": m = materials[3]; break;
+                case "LandUse": m = materials[4]; break;
+                case "PlantCover": m = materials[5]; break;
+                case "SolitaryVegetationObject": m = materials[5]; break;
+                case "Railway": m = materials[6]; break;
+                case "Road": m = materials[7]; break;
+                case "TransportSquare": m = materials[7]; break;
+                case "Waterway": m = materials[9]; break;
+                case "Tunnel": m = materials[8]; break;
+                case "TunnelPart": m = materials[8]; break;
+                case "TunnelInstallation": m = materials[8]; break;
+                case "TunnelConstructiveElement": m = materials[8]; break;
+                case "TunnelHollowSpace": m = materials[8]; break;
+                case "TunnelFurniture": m = materials[8]; break;
+                case "WaterBody": m = materials[9]; break;
+                default: break;
+            }
+            return m;
+        }
 
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -398,7 +440,9 @@ namespace cityjsonToRevit
                                 foreach (var objProperties in objects)
                                 {
                                     string attributeName = objects.Name;
-                                    CreateTessellatedShape(doc, materialDef.Id, objProperties, vertList, attributeName, lodSpec);
+                                    string objType = unchecked((string)objProperties.type);
+                                    Material mat = matSelector(materials, objType, doc);
+                                    CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec);
                                 }
                             }
                             TaskDialog.Show("Good!", "All set! Let's Go!\n");
