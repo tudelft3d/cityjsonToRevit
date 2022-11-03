@@ -278,6 +278,29 @@ namespace cityjsonToRevit
                     t.Commit();
                 }
             }
+            else
+            {
+                Material m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Bridge").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Group").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Furniture").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Landuse").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Plants").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Railway").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Road").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Tunnel").First();
+                mats.Add(m);
+                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Water").First();
+                mats.Add(m);
+            }
             return mats;
          }
 
