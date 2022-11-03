@@ -214,6 +214,75 @@ namespace cityjsonToRevit
 
             }
         }
+         public List<Material> matGenerator(Document doc)
+         {
+            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
+            IEnumerable<Material> materialsEnum
+              = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
+            Material materialDef = materialsEnum.First();
+            IEnumerable<Material> checkMat
+              = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building");
+            List<Material> mats = new List<Material>();
+            if (!checkMat.Any())
+            {
+                using (Transaction t = new Transaction(doc, "Set CJ Materials"))
+                {
+                    t.Start();
+                    Material cj00 = materialDef.Duplicate("cj-Building");
+                    cj00.Color = new Color(119, 136, 153);
+                    mats.Add(cj00);
+                    Material cj01 = materialDef.Duplicate("cj-Bridge");
+                    cj01.Color = new Color(160, 82, 45);
+                    mats.Add(cj01);
+                    Material cj02 = materialDef.Duplicate("cj-Group");
+                    cj02.Color = new Color(218, 165, 32);
+                    mats.Add(cj02);
+                    Material cj03 = materialDef.Duplicate("cj-Furniture");
+                    cj03.Color = new Color(255, 69, 0);
+                    mats.Add(cj03);
+                    Material cj04 = materialDef.Duplicate("cj-Landuse");
+                    cj04.Color = new Color(218, 165, 32);
+                    mats.Add(cj04);
+                    Material cj05 = materialDef.Duplicate("cj-Plants");
+                    cj05.Color = new Color(0, 204, 0);
+                    mats.Add(cj05);
+                    Material cj06 = materialDef.Duplicate("cj-Railway");
+                    cj06.Color = new Color(0, 0, 0);
+                    mats.Add(cj06);
+                    Material cj07 = materialDef.Duplicate("cj-Road");
+                    cj07.Color = new Color(64, 64, 64);
+                    mats.Add(cj07);
+                    Material cj08 = materialDef.Duplicate("cj-Tunnel");
+                    cj08.Color = new Color(51, 25, 0);
+                    mats.Add(cj08);
+                    Material cj09 = materialDef.Duplicate("cj-Water");
+                    cj09.Color = new Color(0, 128, 255);
+                    mats.Add(cj09);
+
+                    foreach (Material m in mats)
+                    {
+                        ElementId appearanceAssetId = m.AppearanceAssetId;
+                        AppearanceAssetElement assetElem = m.Document.GetElement(appearanceAssetId) as AppearanceAssetElement;
+                        ElementId duplicateAssetElementId = ElementId.InvalidElementId;
+                        AppearanceAssetElement duplicateAssetElement = assetElem.Duplicate(m.Name);
+                        m.AppearanceAssetId = duplicateAssetElement.Id;
+                        duplicateAssetElementId = duplicateAssetElement.Id;
+                        using (AppearanceAssetEditScope editScope = new AppearanceAssetEditScope(assetElem.Document))
+                        {
+                            Asset editableAsset = editScope.Start(duplicateAssetElementId);
+                            AssetPropertyDoubleArray4d genericDiffuseProperty = editableAsset.FindByName("generic_diffuse") as AssetPropertyDoubleArray4d;
+                            genericDiffuseProperty.SetValueAsColor(m.Color);
+                            editScope.Commit(true);
+                        }
+                    }
+                    t.Commit();
+                }
+            }
+            return mats;
+         }
+
+
+
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
 
@@ -227,7 +296,7 @@ namespace cityjsonToRevit
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
             Material materialDef = materialsEnum.First();
 
-
+            List<Material> materials = matGenerator(doc);
             //starting transaction
             using (Transaction trans = new Transaction(doc, "Load CityJSON"))
             {
@@ -313,72 +382,8 @@ namespace cityjsonToRevit
                         }
                     }
                 }
-
-
                 trans.Commit();
-
             }
-
-            IEnumerable<Material> checkMat
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building");
-
-            if (!checkMat.Any())
-            {
-                using (Transaction t = new Transaction(doc, "Set CJ Materials"))
-                {
-                    t.Start();
-                    List<Material> mats = new List<Material>();
-                    Material cj00 = materialDef.Duplicate("cj-Building");
-                    cj00.Color = new Color(119, 136, 153);
-                    mats.Add(cj00);
-                    Material cj01 = materialDef.Duplicate("cj-Bridge");
-                    cj01.Color = new Color(160, 82, 45);
-                    mats.Add(cj01);
-                    Material cj02 = materialDef.Duplicate("cj-Group");
-                    cj02.Color = new Color(218, 165, 32);
-                    mats.Add(cj02);
-                    Material cj03 = materialDef.Duplicate("cj-Furniture");
-                    cj03.Color = new Color(255, 69, 0);
-                    mats.Add(cj03);
-                    Material cj04 = materialDef.Duplicate("cj-Landuse");
-                    cj04.Color = new Color(218, 165, 32);
-                    mats.Add(cj04);
-                    Material cj05 = materialDef.Duplicate("cj-Plants");
-                    cj05.Color = new Color(0, 204, 0);
-                    mats.Add(cj05);
-                    Material cj06 = materialDef.Duplicate("cj-Railway");
-                    cj06.Color = new Color(0, 0, 0);
-                    mats.Add(cj06);
-                    Material cj07 = materialDef.Duplicate("cj-Road");
-                    cj07.Color = new Color(64, 64, 64);
-                    mats.Add(cj07);
-                    Material cj08 = materialDef.Duplicate("cj-Tunnel");
-                    cj08.Color = new Color(51, 25, 0);
-                    mats.Add(cj08);
-                    Material cj09 = materialDef.Duplicate("cj-Water");
-                    cj09.Color = new Color(0, 128, 255);
-                    mats.Add(cj09);
-
-                    foreach (Material m in mats)
-                    {
-                        ElementId appearanceAssetId = m.AppearanceAssetId;
-                        AppearanceAssetElement assetElem = m.Document.GetElement(appearanceAssetId) as AppearanceAssetElement;
-                        ElementId duplicateAssetElementId = ElementId.InvalidElementId;
-                        AppearanceAssetElement duplicateAssetElement = assetElem.Duplicate(m.Name);
-                        m.AppearanceAssetId = duplicateAssetElement.Id;
-                        duplicateAssetElementId = duplicateAssetElement.Id;
-                        using (AppearanceAssetEditScope editScope = new AppearanceAssetEditScope(assetElem.Document))
-                        {
-                            Asset editableAsset = editScope.Start(duplicateAssetElementId);
-                            AssetPropertyDoubleArray4d genericDiffuseProperty = editableAsset.FindByName("generic_diffuse") as AssetPropertyDoubleArray4d;
-                            genericDiffuseProperty.SetValueAsColor(m.Color);
-                            editScope.Commit(true);
-                        }
-                    }
-                    t.Commit();
-                }
-            }
-            
             return Result.Succeeded;
         }
     }
