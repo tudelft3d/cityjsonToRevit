@@ -21,13 +21,34 @@ using Newtonsoft.Json.Linq;
 using DotSpatial.Projections;
 using Autodesk.Revit.DB.Visual;
 
+
 namespace cityjsonToRevit
 {
 
     [Transaction(TransactionMode.Manual)]
     class DbRunner : IExternalCommand
     {
-        public int espgNum(dynamic cityJ)
+        const double angleRatio = Math.PI / 180;
+        public static double distanceBetweenPlaces(double lon1, double lat1, double lon2, double lat2)
+        {
+            double R = 6371000; // meter
+
+            double sLat1 = Math.Sin(lat1);
+            double sLat2 = Math.Sin(lat2);
+            double cLat1 = Math.Cos(lat1);
+            double cLat2 = Math.Cos(lat2);
+            double cLon = Math.Cos(lon1 - lon2);
+
+            double cosD = sLat1 * sLat2 + cLat1 * cLat2 * cLon;
+
+            double d = Math.Acos(cosD);
+
+            double dist = R * d;
+
+            return dist;
+        }
+
+        public int epsgNum(dynamic cityJ)
         {
             string espg = unchecked((string)cityJ.metadata.referenceSystem);
             int found = espg.LastIndexOf("/");
@@ -39,6 +60,7 @@ namespace cityjsonToRevit
             int espgNo = Int32.Parse(espg);
             return espgNo;
         }
+
         private List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
         {
             List<double> coord = new List<double>();
@@ -63,38 +85,55 @@ namespace cityjsonToRevit
 
             // Angles are in radians when coming from Revit API, so we 
             // convert to degrees for display
-            const double angleRatio = Math.PI / 180;   // angle conversion factor
-
             SiteLocation site = projectLocation.GetSiteLocation();
             double latDeg = site.Latitude / angleRatio;
             double lonDeg = site.Longitude / angleRatio;
-            double ylatDeg = latDeg * (10000 * 1000 / 90);
-            double xlonDeg = lonDeg * (10000 * 1000 / 90);
+            double distance = distanceBetweenPlaces(site.Longitude, site.Latitude, 0, 0);
+            double xdistance = distanceBetweenPlaces(site.Longitude, site.Latitude, 0, site.Latitude);
+            double ydistance = distanceBetweenPlaces(site.Longitude, site.Latitude, site.Longitude, 0);
 
             prompt += "\n\t" + "Site location:";
             prompt += "\n\t\t" + "Latitude: " + latDeg + "°";
-            prompt += "\n\t\t" + ylatDeg + " meters";
+            prompt += "\n\t\t" + "y distance to zero zero  " + ydistance + " meters";
+
             prompt += "\n\t\t" + "Longitude: " + lonDeg + "°";
-            prompt += "\n\t\t" + xlonDeg + " meters";
+            prompt += "\n\t\t" + "x distance to zero zero  " + xdistance + " meters";
+
+            prompt += "\n\t\t" +"overal distance to zero zero  "+ distance + " meters";
             prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
-            coord.Add(xlonDeg);
-            coord.Add(ylatDeg);
+            coord.Add(latDeg);
+            coord.Add(lonDeg);
             // Give the user some information
             TaskDialog.Show("Revit", prompt);
             return coord;
         }
+        private void PointProjector(int number, double[] xy)
+        {
+            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(number);
+            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(4326);
+            double[] z = { 0 };
+            Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
+            return;
+        }
+
+        private void PointProjectorMeter(int number, double[] xy)
+        {
+            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(number);
+            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(3395);
+            double[] z = { 0 };
+            Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
+            return;
+        }
+
         private void UpdateSiteLocation(Document document, dynamic cityJ)
         {
             const double angleRatio = Math.PI / 180;
             SiteLocation site = document.ActiveProjectLocation.GetSiteLocation();
-            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(espgNum(cityJ));
-            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(4326);
+            int espgNo = epsgNum(cityJ);
             double[] xy = { cityJ.transform.translate[0], cityJ.transform.translate[1] };
-            double[] z = { 0 };
-            Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
+            PointProjector(espgNo, xy);
             site.Latitude = xy[1] * angleRatio;
             site.Longitude = xy[0] * angleRatio;
-
         }
         static public bool CheckValidity(dynamic file)
         {
@@ -214,7 +253,7 @@ namespace cityjsonToRevit
 
             }
         }
-         private List<Material> matGenerator(Document doc)
+        private List<Material> matGenerator(Document doc)
          {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             IEnumerable<Material> materialsEnum
@@ -390,26 +429,57 @@ namespace cityjsonToRevit
                         {
                             string json = reader.ReadToEnd();
                             dynamic jCity = JsonConvert.DeserializeObject(json);
-                            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(espgNum(jCity));
-                            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(4326);
+                            int espgNo = epsgNum(jCity);
                             //const double angleRatio = Math.PI / 180;
-                            List<XYZ> vertList = new List<XYZ>();
-                            //bool newLocation = true;
+
+                            bool newLocation = false;
                             //if (newLocation)
                             //{
-                            foreach (var vertex in jCity.vertices)
+                            SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
+                            double latDeg = site.Latitude / angleRatio;
+                            double lonDeg = site.Longitude / angleRatio;
+                            
+
+                            List<XYZ> vertList = new List<XYZ>();
+                            switch (newLocation)
                             {
-                                double x = vertex[0] * jCity.transform.scale[0];
-                                //+ jCity.transform.translate[0] - coord[0];
-                                double y = vertex[1] * jCity.transform.scale[1];
-                                double z = vertex[2] * jCity.transform.scale[2];
-                                double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
-                                double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
-                                double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
-                                XYZ vert = new XYZ(xx, yy, zz);
-                                vertList.Add(vert);
+                                case true:
+                                    UpdateSiteLocation(doc, jCity);
+                                    foreach (var vertex in jCity.vertices)
+                                    {
+                                        double x = vertex[0] * jCity.transform.scale[0];
+                                        double y = vertex[1] * jCity.transform.scale[1];
+                                        double z = vertex[2] * jCity.transform.scale[2];
+                                        double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
+                                        double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
+                                        double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
+                                        XYZ vert = new XYZ(xx, yy, zz);
+                                        vertList.Add(vert);
+                                    }
+                                    break;
+                                default:
+                                    double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                                    PointProjectorMeter(espgNo, tranC);
+                                    double[] tranR = { lonDeg, latDeg };
+                                    PointProjectorMeter(4326, tranR);
+                                    double tranx = tranC[0] - tranR[0];
+                                    double trany = tranC[1] - tranR[1];
+                                    foreach (var vertex in jCity.vertices)
+                                    {
+                                        double x = vertex[0] * jCity.transform.scale[0] + tranx;
+                                        double y = vertex[1] * jCity.transform.scale[1] + trany;
+                                        double z = vertex[2] * jCity.transform.scale[2];
+                                        double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
+                                        double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
+                                        double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
+                                        XYZ vert = new XYZ(xx, yy, zz);
+                                        vertList.Add(vert);
+                                    }
+
+                                    break;
                             }
-                            UpdateSiteLocation(doc, jCity);
+
+                            
                             //}
                             //else
                             //{
