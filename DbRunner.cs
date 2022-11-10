@@ -116,10 +116,10 @@ namespace cityjsonToRevit
             return;
         }
 
-        private void PointProjectorMeter(int number, double[] xy)
+        private void PointProjectorRev(int number, double[] xy)
         {
-            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(number);
-            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(3395);
+            ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(number);
+            ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(4326);
             double[] z = { 0 };
             Reproject.ReprojectPoints(xy, z, pStart, pEnd, 0, 1);
             return;
@@ -459,15 +459,14 @@ namespace cityjsonToRevit
                                     break;
                                 default:
                                     double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
-                                    PointProjectorMeter(espgNo, tranC);
                                     double[] tranR = { lonDeg, latDeg };
-                                    PointProjectorMeter(4326, tranR);
+                                    PointProjectorRev(espgNo, tranR);
                                     double tranx = tranC[0] - tranR[0];
                                     double trany = tranC[1] - tranR[1];
                                     foreach (var vertex in jCity.vertices)
                                     {
-                                        double x = vertex[0] * jCity.transform.scale[0] + tranx;
-                                        double y = vertex[1] * jCity.transform.scale[1] + trany;
+                                        double x = (vertex[0] * jCity.transform.scale[0]) + tranx;
+                                        double y = (vertex[1] * jCity.transform.scale[1]) + trany;
                                         double z = vertex[2] * jCity.transform.scale[2];
                                         double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
                                         double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
