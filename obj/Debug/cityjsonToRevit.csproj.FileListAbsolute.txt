@@ -12,3 +12,6 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonT
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.GenerateResource.cache
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\DotSpatial.Projections.dll
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\DotSpatial.Projections.xml
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\GMap.NET.Core.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\GMap.NET.WindowsForms.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.mapViewer.resources

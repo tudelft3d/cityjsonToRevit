@@ -37,6 +37,12 @@
     <Reference Include="DotSpatial.Projections, Version=4.0.656.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DotSpatial.Projections.4.0.656\lib\netstandard2.0\DotSpatial.Projections.dll</HintPath>
     </Reference>
+    <Reference Include="GMap.NET.Core, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="GMap.NET.WindowsForms, Version=1.7.5.0, Culture=neutral, PublicKeyToken=b85b9027b614afef, processorArchitecture=MSIL">
+      <HintPath>..\packages\GMap.NET.WindowsForms.1.7.5\lib\net40\GMap.NET.WindowsForms.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -69,6 +75,12 @@
     <Compile Include="lodUserSelect.Designer.cs">
       <DependentUpon>lodUserSelect.cs</DependentUpon>
     </Compile>
+    <Compile Include="mapViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="mapViewer.Designer.cs">
+      <DependentUpon>mapViewer.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -81,6 +93,9 @@
   <ItemGroup>
     <EmbeddedResource Include="lodUserSelect.resx">
       <DependentUpon>lodUserSelect.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="mapViewer.resx">
+      <DependentUpon>mapViewer.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -392,7 +392,10 @@ namespace cityjsonToRevit
 
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-
+            using(mapViewer mpv = new mapViewer())
+            {
+                mpv.ShowDialog();
+            }
             //Selecting Default Material for shape creation
 
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
