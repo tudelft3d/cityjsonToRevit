@@ -43,8 +43,13 @@ namespace cityjsonToRevit
             // 
             // gMap
             // 
-            gMap.MapProvider = GMapProviders.OpenStreetMap;
-            gMap.Position = new PointLatLng(Lat, Long);
+            this.gMap.MapProvider = GMapProviders.GoogleMap;
+            this.gMap.Position = new PointLatLng(Lat, Long);
+            gMap.CanDragMap = true;
+            gMap.MinZoom = 0;
+            gMap.MaxZoom = 24;
+            gMap.Zoom = 9;
+            gMap.AutoScroll = true;
             this.gMap.Bearing = 0F;
             this.gMap.CanDragMap = true;
             this.gMap.EmptyTileColor = System.Drawing.Color.Navy;
