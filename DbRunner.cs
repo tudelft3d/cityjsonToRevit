@@ -29,25 +29,7 @@ namespace cityjsonToRevit
     class DbRunner : IExternalCommand
     {
         const double angleRatio = Math.PI / 180;
-        public static double distanceBetweenPlaces(double lon1, double lat1, double lon2, double lat2)
-        {
-            double R = 6371000; // meter
-
-            double sLat1 = Math.Sin(lat1);
-            double sLat2 = Math.Sin(lat2);
-            double cLat1 = Math.Cos(lat1);
-            double cLat2 = Math.Cos(lat2);
-            double cLon = Math.Cos(lon1 - lon2);
-
-            double cosD = sLat1 * sLat2 + cLat1 * cLat2 * cLon;
-
-            double d = Math.Acos(cosD);
-
-            double dist = R * d;
-
-            return dist;
-        }
-
+       
         public int epsgNum(dynamic cityJ)
         {
             string espg = unchecked((string)cityJ.metadata.referenceSystem);
@@ -61,52 +43,6 @@ namespace cityjsonToRevit
             return espgNo;
         }
 
-        private List<double> ShowActiveProjectLocationUsage(Autodesk.Revit.DB.Document document)
-        {
-            List<double> coord = new List<double>();
-            // Get the project location handle 
-            ProjectLocation projectLocation = document.ActiveProjectLocation;
-
-            // Show the information of current project location
-            XYZ origin = new XYZ(0, 0, 0);
-            ProjectPosition position = projectLocation.GetProjectPosition(origin);
-            if (null == position)
-            {
-                throw new Exception("No project position in origin point.");
-            }
-
-            // Format the prompt string to show the message.
-            String prompt = "Current project location information:\n";
-            prompt += "\n\t" + "Origin point position:";
-            prompt += "\n\t\t" + "Angle: " + position.Angle;
-            prompt += "\n\t\t" + "East to West offset: " + position.EastWest;
-            prompt += "\n\t\t" + "Elevation: " + position.Elevation;
-            prompt += "\n\t\t" + "North to South offset: " + position.NorthSouth;
-
-            // Angles are in radians when coming from Revit API, so we 
-            // convert to degrees for display
-            SiteLocation site = projectLocation.GetSiteLocation();
-            double latDeg = site.Latitude / angleRatio;
-            double lonDeg = site.Longitude / angleRatio;
-            double distance = distanceBetweenPlaces(site.Longitude, site.Latitude, 0, 0);
-            double xdistance = distanceBetweenPlaces(site.Longitude, site.Latitude, 0, site.Latitude);
-            double ydistance = distanceBetweenPlaces(site.Longitude, site.Latitude, site.Longitude, 0);
-
-            prompt += "\n\t" + "Site location:";
-            prompt += "\n\t\t" + "Latitude: " + latDeg + "°";
-            prompt += "\n\t\t" + "y distance to zero zero  " + ydistance + " meters";
-
-            prompt += "\n\t\t" + "Longitude: " + lonDeg + "°";
-            prompt += "\n\t\t" + "x distance to zero zero  " + xdistance + " meters";
-
-            prompt += "\n\t\t" +"overal distance to zero zero  "+ distance + " meters";
-            prompt += "\n\t\t" + "TimeZone: " + site.TimeZone;
-            coord.Add(latDeg);
-            coord.Add(lonDeg);
-            // Give the user some information
-            TaskDialog.Show("Revit", prompt);
-            return coord;
-        }
         private void PointProjector(int number, double[] xy)
         {
             ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(number);
@@ -127,7 +63,6 @@ namespace cityjsonToRevit
 
         private void UpdateSiteLocation(Document document, dynamic cityJ)
         {
-            const double angleRatio = Math.PI / 180;
             SiteLocation site = document.ActiveProjectLocation.GetSiteLocation();
             int espgNo = epsgNum(cityJ);
             double[] xy = { cityJ.transform.translate[0], cityJ.transform.translate[1] };
@@ -149,6 +84,7 @@ namespace cityjsonToRevit
             }
             return true;
         }
+
         private string lodSelecter(dynamic cityJ)
         {
             string level = "";
@@ -407,7 +343,6 @@ namespace cityjsonToRevit
                 trans.Start();
                 var fileContent = string.Empty;
                 var filePath = string.Empty;
-                List<double> coord = ShowActiveProjectLocationUsage(doc);
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
 
 
@@ -434,11 +369,9 @@ namespace cityjsonToRevit
                             string json = reader.ReadToEnd();
                             dynamic jCity = JsonConvert.DeserializeObject(json);
                             int espgNo = epsgNum(jCity);
-                            //const double angleRatio = Math.PI / 180;
 
                             bool newLocation = false;
-                            //if (newLocation)
-                            //{
+
                             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
                             double latDeg = site.Latitude / angleRatio;
                             double lonDeg = site.Longitude / angleRatio;
@@ -504,7 +437,6 @@ namespace cityjsonToRevit
                                     CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec);
                                 }
                             }
-                            TaskDialog.Show("Good!", "All set! Let's Go!\n");
                         }
                     }
                 }

@@ -37,9 +37,9 @@ namespace cityjsonToRevit
             double lonDelta = Math.Abs(lon0 - lon1);
             if (latDelta < 0.0001) { latDelta = 0.0001; }
             if (lonDelta < 0.0001) { lonDelta = 0.0001; }
-            double latMax = latM + (0.75 * latDelta);
-            double lonMax = lonM - (0.75 * lonDelta);
-            RectLatLng rectLatLng = new RectLatLng(latMax, lonMax, 1.5 * lonDelta, 1.5 * latDelta);
+            double latMax = latM + (0.9 * latDelta);
+            double lonMax = lonM - (0.9 * lonDelta);
+            RectLatLng rectLatLng = new RectLatLng(latMax, lonMax, 1.8 * lonDelta, 1.8 * latDelta);
             return rectLatLng;
         }
         /// <summary>
@@ -59,7 +59,7 @@ namespace cityjsonToRevit
             // gMap
             // 
             gMap.DragButton = System.Windows.Forms.MouseButtons.Left;
-            this.gMap.MapProvider = GMapProviders.GoogleMap;
+            this.gMap.MapProvider = GMapProviders.ArcGIS_World_Street_Map;
             GMarkerGoogleType gMarkerGoogleType = GMarkerGoogleType.arrow;
             PointLatLng pp = new PointLatLng(lat0, lon0);
             PointLatLng pp1 = new PointLatLng(lat1, lon1);
@@ -109,6 +109,7 @@ namespace cityjsonToRevit
             this.gMap.ShowTileGridLines = false;
             this.gMap.Size = new System.Drawing.Size(433, 426);
             this.gMap.TabIndex = 0;
+            this.gMap.ShowCenter = false;
             // 
             // label1
             // 
