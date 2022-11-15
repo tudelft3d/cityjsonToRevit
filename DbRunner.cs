@@ -392,10 +392,7 @@ namespace cityjsonToRevit
 
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-            using(mapViewer mpv = new mapViewer())
-            {
-                mpv.ShowDialog();
-            }
+            
             //Selecting Default Material for shape creation
 
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
@@ -412,6 +409,10 @@ namespace cityjsonToRevit
                 var filePath = string.Empty;
                 List<double> coord = ShowActiveProjectLocationUsage(doc);
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
+
+
+
+
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     openFileDialog.Title = "Open CityJSON file";
@@ -441,7 +442,18 @@ namespace cityjsonToRevit
                             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
                             double latDeg = site.Latitude / angleRatio;
                             double lonDeg = site.Longitude / angleRatio;
-                            
+
+                            double[] xy = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                            PointProjector(espgNo, xy);
+                            double cjLat = xy[1];
+                            double cjLon = xy[0];
+
+                            //User selects to update or choose the revit origin
+                            using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
+                            {
+                                mpv.ShowDialog();
+                                newLocation = mpv._loc;
+                            }
 
                             List<XYZ> vertList = new List<XYZ>();
                             switch (newLocation)
@@ -480,31 +492,6 @@ namespace cityjsonToRevit
 
                                     break;
                             }
-
-                            
-                            //}
-                            //else
-                            //{
-                            //    foreach (var vertex in jCity.vertices)
-                            //    {
-                            //        double x = vertex[0] * jCity.transform.scale[0] + jCity.transform.translate[0];
-                            //        double y = vertex[1] * jCity.transform.scale[1] + jCity.transform.translate[1];
-                            //        double z = vertex[2] * jCity.transform.scale[2] + jCity.transform.translate[2];
-                            //        double[] xy = { x, y };
-                            //        double[] zy = { 0 };
-                            //        Reproject.ReprojectPoints(xy, zy, pStart, pEnd, 0, 1);
-                            //        SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
-                            //        ;
-                            //        double xDeg = xy[0] - site.Longitude / angleRatio;
-                            //        double yDeg = xy[1] - site.Latitude / angleRatio;
-
-                            //        double xx = UnitUtils.ConvertToInternalUnits(xy[0] * (10000 * 1000 / 90), UnitTypeId.Meters);
-                            //        double yy = UnitUtils.ConvertToInternalUnits(xy[1] * (10000 * 1000 / 90), UnitTypeId.Meters);
-                            //        double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
-                            //        XYZ vert = new XYZ(xx, yy, zz);
-                            //        vertList.Add(vert);
-                            //    }
-                            //}
 
                             string lodSpec = lodSelecter(jCity);
                             foreach (var objects in jCity.CityObjects)

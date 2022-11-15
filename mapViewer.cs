@@ -12,19 +12,30 @@ namespace cityjsonToRevit
 {
     public partial class mapViewer : Form
     {
-        public mapViewer()
+        public bool _loc = false;
+        public mapViewer(double lat0, double lon0, double lat1, double lon1)
         {
-            InitializeComponent();
+            InitializeComponent(lat0, lon0, lat1, lon1);
         }
 
-        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        public bool NewLoc(bool loca)
         {
-
+            _loc = loca;
+            return _loc;
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
+            bool loc = false;
+            NewLoc(loc);
+            this.Close();
+        }
 
+        private void button2_Click(object sender, EventArgs e)
+        {
+            bool loc = true;
+            NewLoc(loc);
+            this.Close();
         }
     }
 }

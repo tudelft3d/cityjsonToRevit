@@ -12,8 +12,7 @@ namespace cityjsonToRevit
         /// </summary>
         private System.ComponentModel.IContainer components = null;
         GMapOverlay mapOverlay = new GMapOverlay("markers");
-        double Lat = 52.02;
-        double Lon = 4.32;
+
 
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace cityjsonToRevit
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
+        private void InitializeComponent(double lat0, double lon0, double lat1, double lon1)
         {
             this.gMap = new GMap.NET.WindowsForms.GMapControl();
             this.label1 = new System.Windows.Forms.Label();
@@ -62,18 +61,16 @@ namespace cityjsonToRevit
             gMap.DragButton = System.Windows.Forms.MouseButtons.Left;
             this.gMap.MapProvider = GMapProviders.GoogleMap;
             GMarkerGoogleType gMarkerGoogleType = GMarkerGoogleType.arrow;
-            double nlat = Lat - 0.001;
-            double nlon = Lon + 0.03;
-            PointLatLng pp = new PointLatLng(Lat, Lon);
-            PointLatLng pp1 = new PointLatLng(nlat, nlon);
-            RectLatLng rl = rectBypoints(Lat, Lon, nlat, nlon);
+            PointLatLng pp = new PointLatLng(lat0, lon0);
+            PointLatLng pp1 = new PointLatLng(lat1, lon1);
+            RectLatLng rl = rectBypoints(lat0, lon0, lat1, lon1);
 
 
             GMarkerGoogle marker = new GMarkerGoogle(pp, gMarkerGoogleType);
             GMarkerGoogle marker1 = new GMarkerGoogle(pp1, gMarkerGoogleType);
-            marker.ToolTipText = "CityJSON origin";
+            marker.ToolTipText = "Revit origin";
             marker.ToolTipMode = MarkerTooltipMode.Always;
-            marker1.ToolTipText = "Revit origin";
+            marker1.ToolTipText = "CityJSON origin";
             marker1.ToolTipMode = MarkerTooltipMode.Always;
             marker.IsVisible = true;
             marker1.IsVisible = true;
@@ -140,6 +137,8 @@ namespace cityjsonToRevit
             this.button2.TabIndex = 5;
             this.button2.Text = "Update";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+
             // 
             // label2
             // 
