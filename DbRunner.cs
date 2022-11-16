@@ -329,8 +329,6 @@ namespace cityjsonToRevit
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
             
-            //Selecting Default Material for shape creation
-
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             IEnumerable<Material> materialsEnum
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
@@ -346,8 +344,6 @@ namespace cityjsonToRevit
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
 
 
-
-
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     openFileDialog.Title = "Open CityJSON file";
@@ -355,7 +351,7 @@ namespace cityjsonToRevit
                     openFileDialog.Filter = "JSON files (*.JSON)|*.JSON";
                     openFileDialog.FilterIndex = 1;
                     openFileDialog.RestoreDirectory = true;
-
+                    
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         //Get the path of specified file
@@ -368,8 +364,16 @@ namespace cityjsonToRevit
                         {
                             string json = reader.ReadToEnd();
                             dynamic jCity = JsonConvert.DeserializeObject(json);
-                            int espgNo = epsgNum(jCity);
 
+                            if (!CheckValidity(jCity))
+                            {
+                                TaskDialog.Show("Error!", "Invalid CityJSON file" +
+                                    "");
+                                trans.Commit();
+                                return Result.Failed;
+                            }
+
+                            int espgNo = epsgNum(jCity);
                             bool newLocation = false;
 
                             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
