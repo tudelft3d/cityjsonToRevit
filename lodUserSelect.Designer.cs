@@ -87,6 +87,7 @@ namespace cityjsonToRevit
             this.Name = "lodUserSelect";
             this.ShowIcon = false;
             this.Text = "LOD select";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.ResumeLayout(false);
             this.PerformLayout();
         }

@@ -177,6 +177,7 @@ namespace cityjsonToRevit
             this.Name = "mapViewer";
             this.ShowIcon = false;
             this.Text = "Select site location";
+            this.FormBorderStyle  = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.ResumeLayout(false);
             this.PerformLayout();
 
