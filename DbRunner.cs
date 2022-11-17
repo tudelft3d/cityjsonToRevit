@@ -32,14 +32,18 @@ namespace cityjsonToRevit
        
         public int epsgNum(dynamic cityJ)
         {
-            string espg = unchecked((string)cityJ.metadata.referenceSystem);
-            int found = espg.LastIndexOf("/");
+            string epsg = unchecked((string)cityJ.metadata.referenceSystem);
+            if(epsg == null)
+            {
+                return -1;
+            }
+            int found = epsg.LastIndexOf("/");
             if (found == -1)
             {
-                found = espg.LastIndexOf(":");
+                found = epsg.LastIndexOf(":");
             }
-            espg = espg.Substring(found + 1);
-            int espgNo = Int32.Parse(espg);
+            epsg = epsg.Substring(found + 1);
+            int espgNo = Int32.Parse(epsg);
             return espgNo;
         }
 
@@ -101,6 +105,10 @@ namespace cityjsonToRevit
                     foreach (var boundaryGroup in obj.geometry)
                     {
                         string lod = (string)boundaryGroup.lod;
+                        if (lod == null)
+                        {
+                            return "Failed";
+                        }
                         lods.Add(lod);
                     }
                 }
@@ -132,7 +140,7 @@ namespace cityjsonToRevit
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
 
-                if (Lod == (string)boundaryGroup.lod)
+                if (Lod == boundaryGroup.lod as string)
                 {
                     builder.OpenConnectedFaceSet(false);
                     foreach (var boundary in boundaryGroup.boundaries)
@@ -323,6 +331,22 @@ namespace cityjsonToRevit
         }
 
 
+        private List<XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+        {
+            List<XYZ> vertList = new List<XYZ>();
+            foreach (var vertex in cityJ.vertices)
+            {
+                double x = (vertex[0] * cityJ.transform.scale[0]) + transX;
+                double y = (vertex[1] * cityJ.transform.scale[1]) + transY;
+                double z = vertex[2] * cityJ.transform.scale[2];
+                double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
+                double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
+                double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
+                XYZ vert = new XYZ(xx, yy, zz);
+                vertList.Add(vert);
+            }
+            return vertList;
+        }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
 
@@ -342,7 +366,6 @@ namespace cityjsonToRevit
                 var fileContent = string.Empty;
                 var filePath = string.Empty;
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
-
 
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
@@ -372,65 +395,55 @@ namespace cityjsonToRevit
                                 trans.Commit();
                                 return Result.Failed;
                             }
-
-                            int espgNo = epsgNum(jCity);
-                            bool newLocation = false;
-
+                            List<XYZ> vertList = new List<XYZ>();
+                            int epsgNo = epsgNum(jCity);
+                            if(epsgNo == -1)
+                            {
+                                TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
+                                vertList = vertBuilder(jCity, 0, 0);
+                                goto Checker;
+                            }
                             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
                             double latDeg = site.Latitude / angleRatio;
                             double lonDeg = site.Longitude / angleRatio;
 
                             double[] xy = { jCity.transform.translate[0], jCity.transform.translate[1] };
-                            PointProjector(espgNo, xy);
+                            PointProjector(epsgNo, xy);
                             double cjLat = xy[1];
                             double cjLon = xy[0];
 
+                            bool newLocation = false;
                             //User selects to update or choose the revit origin
                             using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
                             {
                                 mpv.ShowDialog();
                                 newLocation = mpv._loc;
                             }
-
-                            List<XYZ> vertList = new List<XYZ>();
+                            
                             switch (newLocation)
                             {
                                 case true:
                                     UpdateSiteLocation(doc, jCity);
-                                    foreach (var vertex in jCity.vertices)
-                                    {
-                                        double x = vertex[0] * jCity.transform.scale[0];
-                                        double y = vertex[1] * jCity.transform.scale[1];
-                                        double z = vertex[2] * jCity.transform.scale[2];
-                                        double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
-                                        double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
-                                        double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
-                                        XYZ vert = new XYZ(xx, yy, zz);
-                                        vertList.Add(vert);
-                                    }
+                                    vertList = vertBuilder(jCity, 0, 0);
                                     break;
                                 default:
                                     double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
                                     double[] tranR = { lonDeg, latDeg };
-                                    PointProjectorRev(espgNo, tranR);
+                                    PointProjectorRev(epsgNo, tranR);
                                     double tranx = tranC[0] - tranR[0];
                                     double trany = tranC[1] - tranR[1];
-                                    foreach (var vertex in jCity.vertices)
-                                    {
-                                        double x = (vertex[0] * jCity.transform.scale[0]) + tranx;
-                                        double y = (vertex[1] * jCity.transform.scale[1]) + trany;
-                                        double z = vertex[2] * jCity.transform.scale[2];
-                                        double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
-                                        double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
-                                        double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
-                                        XYZ vert = new XYZ(xx, yy, zz);
-                                        vertList.Add(vert);
-                                    }
-
+                                    vertList = vertBuilder(jCity, tranx, trany);
                                     break;
                             }
-
+                            Checker:
                             string lodSpec = lodSelecter(jCity);
+                            if (lodSpec == "Failed")
+                            {
+                                TaskDialog.Show("Error", "This version does not support Templating.");
+                                trans.Commit();
+                                return Result.Failed;
+
+                            }
                             foreach (var objects in jCity.CityObjects)
                             {
                                 foreach (var objProperties in objects)
