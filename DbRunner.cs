@@ -140,7 +140,7 @@ namespace cityjsonToRevit
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
 
-                if (Lod == boundaryGroup.lod as string)
+                if (Lod == (string)boundaryGroup.lod)
                 {
                     builder.OpenConnectedFaceSet(false);
                     foreach (var boundary in boundaryGroup.boundaries)
@@ -439,7 +439,7 @@ namespace cityjsonToRevit
                             string lodSpec = lodSelecter(jCity);
                             if (lodSpec == "Failed")
                             {
-                                TaskDialog.Show("Error", "This version does not support Templating.");
+                                TaskDialog.Show("Error!", "This version does not support Templating.");
                                 trans.Commit();
                                 return Result.Failed;
 
