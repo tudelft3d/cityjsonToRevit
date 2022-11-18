@@ -427,12 +427,16 @@ namespace cityjsonToRevit
                             }
                             Checker:
                             string lodSpec = lodSelecter(jCity);
+                            if (lodSpec == "")
+                            {
+                                trans.Commit();
+                                return Result.Failed;
+                            }
                             if (lodSpec == "Failed")
                             {
                                 TaskDialog.Show("Error!", "This version does not support Templating.");
                                 trans.Commit();
                                 return Result.Failed;
-
                             }
                             foreach (var objects in jCity.CityObjects)
                             {

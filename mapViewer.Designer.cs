@@ -180,7 +180,6 @@ namespace cityjsonToRevit
             this.FormBorderStyle  = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.ResumeLayout(false);
             this.PerformLayout();
-
         }
 
         #endregion
