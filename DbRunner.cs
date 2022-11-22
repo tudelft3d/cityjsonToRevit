@@ -190,9 +190,7 @@ namespace cityjsonToRevit
         private List<Material> matGenerator(Document doc)
          {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
-            IEnumerable<Material> materialsEnum
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
-            Material materialDef = materialsEnum.First();
+
             IEnumerable<Material> checkMat
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building");
             List<Material> mats = new List<Material>();
@@ -201,6 +199,13 @@ namespace cityjsonToRevit
                 using (Transaction t = new Transaction(doc, "Set CJ Materials"))
                 {
                     t.Start();
+
+                    ElementId materialId = Material.Create(doc, "matDef");
+                    Material materialDef = doc.GetElement(materialId) as Material;
+
+                    Asset asset = doc.Application.GetAssets(AssetType.Appearance).Where(e => e.Name == "Generic").First();
+                    AppearanceAssetElement assetElement = AppearanceAssetElement.Create(doc, "cjAsset", asset);
+
                     Material cj00 = materialDef.Duplicate("cj-Building");
                     cj00.Color = new Color(119, 136, 153);
                     mats.Add(cj00);
@@ -234,13 +239,12 @@ namespace cityjsonToRevit
 
                     foreach (Material m in mats)
                     {
-                        ElementId appearanceAssetId = m.AppearanceAssetId;
-                        AppearanceAssetElement assetElem = m.Document.GetElement(appearanceAssetId) as AppearanceAssetElement;
+
                         ElementId duplicateAssetElementId = ElementId.InvalidElementId;
-                        AppearanceAssetElement duplicateAssetElement = assetElem.Duplicate(m.Name);
+                        AppearanceAssetElement duplicateAssetElement = assetElement.Duplicate(m.Name);
                         m.AppearanceAssetId = duplicateAssetElement.Id;
                         duplicateAssetElementId = duplicateAssetElement.Id;
-                        using (AppearanceAssetEditScope editScope = new AppearanceAssetEditScope(assetElem.Document))
+                        using (AppearanceAssetEditScope editScope = new AppearanceAssetEditScope(assetElement.Document))
                         {
                             Asset editableAsset = editScope.Start(duplicateAssetElementId);
                             AssetPropertyDoubleArray4d genericDiffuseProperty = editableAsset.FindByName("generic_diffuse") as AssetPropertyDoubleArray4d;
@@ -280,9 +284,9 @@ namespace cityjsonToRevit
         private Material matSelector(List<Material> materials, string type, Document doc)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
-            IEnumerable<Material> materialsEnum
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
-            Material m = materialsEnum.First();
+            Material m
+              = collector.ToElements().Cast<Material>().Where(e => e.Name == "matDef").First();
+
             switch (type) 
             {
                 case "Building": m = materials[0]; break;
@@ -339,14 +343,14 @@ namespace cityjsonToRevit
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+            if (commandData.Application.ActiveUIDocument.Document.IsFamilyDocument)
+            {
+                TaskDialog.Show("Performing on family document", "The plugin should run on project documents.\n");
+                return Result.Failed;
+            }
 
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
-            
-            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
-            IEnumerable<Material> materialsEnum
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "Default");
-            Material materialDef = materialsEnum.First();
 
             List<Material> materials = matGenerator(doc);
             //starting transaction
