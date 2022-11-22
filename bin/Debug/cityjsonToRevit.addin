@@ -3,8 +3,8 @@
   <AddIn Type="Command">
     <Name>cityjsonToRevit</Name>
     <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>63532DE2-D949-4473-B87B-311FEF497B44</AddInId>
-    <FullClassName>cityjsonToRevit.DbRunner</FullClassName>
+    <AddInId>FCC9ECBA-D820-4BB2-99C0-A8CF3F07EBF8</AddInId>
+    <FullClassName>cityjsonToRevit.Program</FullClassName>
     <Text>DbRunner</Text>
     <Description>Opens database file</Description>
     <VendorId>Amir</VendorId>

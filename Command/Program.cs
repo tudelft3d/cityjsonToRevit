@@ -16,7 +16,7 @@ namespace cityjsonToRevit
 {
 
     [Transaction(TransactionMode.Manual)]
-    class DbRunner : IExternalCommand
+    class Program : IExternalCommand
     {
         const double angleRatio = Math.PI / 180;
        

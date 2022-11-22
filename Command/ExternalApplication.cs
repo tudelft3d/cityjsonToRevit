@@ -21,7 +21,7 @@ namespace cityjsonToRevit
             string path = Assembly.GetExecutingAssembly().Location;
 
 
-            PushButtonData button1 = new PushButtonData("Button1", "Import CityJSON", path, "cityjsonToRevit.DbRunner");
+            PushButtonData button1 = new PushButtonData("Button1", "Import CityJSON", path, "cityjsonToRevit.Program");
             RibbonPanel panel = application.CreateRibbonPanel("TU Delft", "CityJSON");
 
             // ExternalCommands assembly path

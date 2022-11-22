@@ -67,18 +67,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DbRunner.cs" />
-    <Compile Include="ExternalApplication.cs" />
-    <Compile Include="lodUserSelect.cs">
+    <Compile Include="Command\Program.cs" />
+    <Compile Include="Command\ExternalApplication.cs" />
+    <Compile Include="Command\lodUserSelect.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="lodUserSelect.Designer.cs">
+    <Compile Include="Command\lodUserSelect.Designer.cs">
       <DependentUpon>lodUserSelect.cs</DependentUpon>
     </Compile>
-    <Compile Include="mapViewer.cs">
+    <Compile Include="Command\mapViewer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="mapViewer.Designer.cs">
+    <Compile Include="Command\mapViewer.Designer.cs">
       <DependentUpon>mapViewer.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -91,10 +91,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="lodUserSelect.resx">
+    <EmbeddedResource Include="Command\lodUserSelect.resx">
       <DependentUpon>lodUserSelect.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="mapViewer.resx">
+    <EmbeddedResource Include="Command\mapViewer.resx">
       <DependentUpon>mapViewer.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
