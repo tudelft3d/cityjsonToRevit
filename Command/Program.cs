@@ -429,8 +429,9 @@ namespace cityjsonToRevit
                                     vertList = vertBuilder(jCity, tranx, trany);
                                     break;
                             }
-                            Checker:
+                        Checker:
                             string lodSpec = lodSelecter(jCity);
+                            List<string> paramets =  paramMaker(jCity);
                             if (lodSpec == "")
                             {
                                 trans.Commit();
@@ -458,6 +459,28 @@ namespace cityjsonToRevit
                 trans.Commit();
             }
             return Result.Succeeded;
+        }
+
+        private List<string> paramMaker(dynamic jCity)
+        {
+            List<string> parameters = new List<string>();
+
+            foreach (var objects in jCity.CityObjects)
+            {
+                foreach (var objProperties in objects)
+                {
+                    if(objProperties.attributes == null)
+                    {
+                        continue;
+                    }
+                    foreach(var Attrib in objProperties.attributes)
+                    {
+                        parameters.Add(Attrib.Name);
+                    }
+                }
+            }
+            parameters = parameters.Distinct().ToList();
+            return parameters;
         }
     }
 }
