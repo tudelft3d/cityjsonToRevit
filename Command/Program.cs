@@ -123,6 +123,7 @@ namespace cityjsonToRevit
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
+
             if (cityObjProp.geometry == null)
             {
                 return;
@@ -183,6 +184,21 @@ namespace cityjsonToRevit
                     ds.ApplicationDataId = "Geometry object id";
                     ds.Name = Namer + "-lod " + lod;
                     ds.SetShape(result.GetGeometricalObjects());
+                    
+                    foreach(string p in parameters)
+                    {
+                        Parameter para = ds.GetParameters(p).Where(e => e.Definition.Name == p).First();
+                        if (cityObjProp.attributes == null)
+                        {
+                            continue;
+                        }
+                        foreach (var attr in cityObjProp.attributes)
+                        {
+
+                            if (attr.Name == p)
+                                para.Set((string)attr);
+                        }
+                    }
                 }
 
             }
@@ -436,6 +452,8 @@ namespace cityjsonToRevit
                             string lodSpec = lodSelecter(jCity);
                             List<string> paramets =  paramFinder(jCity);
 
+                            Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
+
 
                             foreach (string p in paramets)
                             {
@@ -452,12 +470,34 @@ namespace cityjsonToRevit
                                 trans.Commit();
                                 return Result.Failed;
                             }
+
+                            foreach (var objects in jCity.CityObjects)
+                            {
+                                foreach (var objProperties in objects)
+                                {
+                                    var attributes = objProperties.attributes;
+                                    var children = objProperties.children;
+                                    if (children != null && attributes != null)
+                                    {
+                                        foreach(string child in children)
+                                        {
+                                            semanticParentInfo.Add(child, attributes);
+                                        }
+                                    }
+
+                                }
+                            }
+
+
+
                             foreach (var objects in jCity.CityObjects)
                             {
                                 foreach (var objProperties in objects)
                                 {
                                     string attributeName = objects.Name;
                                     string objType = unchecked((string)objProperties.type);
+
+
                                     Material mat = matSelector(materials, objType, doc);
                                     CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets);
                                 }
@@ -489,7 +529,7 @@ namespace cityjsonToRevit
             ForgeTypeId ft = SpecTypeId.String.Text;
             ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, ft);
             option.UserModifiable = false;
-            option.HideWhenNoValue = false;
+            option.HideWhenNoValue = true;
             option.Description = "CityJSON loaded attributes";
             Definition myDefinition = myGroup.Definitions.Create(option);
             CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
@@ -497,7 +537,7 @@ namespace cityjsonToRevit
             myCategories.Insert(myCategory);
             InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
             bool instanceBindOK = bindingMap.Insert(myDefinition,
-                                                instanceBinding, BuiltInParameterGroup.PG_TEXT);
+                                                instanceBinding, BuiltInParameterGroup.PG_DATA);
             BindingMap map = uiapp.ActiveUIDocument.Document.ParameterBindings;
             DefinitionBindingMapIterator it = map.ForwardIterator();
             it.Reset();
