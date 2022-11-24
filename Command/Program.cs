@@ -119,7 +119,7 @@ namespace cityjsonToRevit
                 return level;
             }
         }
-        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod)
+        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod, List<string> parameters)
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
@@ -343,14 +343,17 @@ namespace cityjsonToRevit
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
-            if (commandData.Application.ActiveUIDocument.Document.IsFamilyDocument)
+            UIDocument uidoc = commandData.Application.ActiveUIDocument;
+            Document doc = uidoc.Document;
+            UIApplication uiapp = commandData.Application;
+
+            if (doc.IsFamilyDocument)
             {
                 TaskDialog.Show("Performing on family document", "The plugin should run on project documents.\n");
                 return Result.Failed;
             }
 
-            UIDocument uidoc = commandData.Application.ActiveUIDocument;
-            Document doc = uidoc.Document;
+            
 
             List<Material> materials = matGenerator(doc);
             //starting transaction
@@ -431,7 +434,13 @@ namespace cityjsonToRevit
                             }
                         Checker:
                             string lodSpec = lodSelecter(jCity);
-                            List<string> paramets =  paramMaker(jCity);
+                            List<string> paramets =  paramFinder(jCity);
+
+
+                            foreach (string p in paramets)
+                            {
+                                paramMaker(uiapp, p);
+                            }
                             if (lodSpec == "")
                             {
                                 trans.Commit();
@@ -450,7 +459,7 @@ namespace cityjsonToRevit
                                     string attributeName = objects.Name;
                                     string objType = unchecked((string)objProperties.type);
                                     Material mat = matSelector(materials, objType, doc);
-                                    CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec);
+                                    CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets);
                                 }
                             }
                         }
@@ -461,7 +470,47 @@ namespace cityjsonToRevit
             return Result.Succeeded;
         }
 
-        private List<string> paramMaker(dynamic jCity)
+        private bool paramMaker(UIApplication uiapp,string param)
+        {
+            List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
+            var exes = new HashSet<DefinitionGroup>(m_exdef);
+            DefinitionFile definitionFile = uiapp.Application.OpenSharedParameterFile();
+            if (definitionFile == null)
+            {
+                string AddInPath = typeof(ExternalApplication).Assembly.Location;
+                string tempfile = Path.GetDirectoryName(AddInPath)+"\\parameters.txt";
+                using (File.Create(tempfile)) { }
+                uiapp.Application.SharedParametersFilename = tempfile;
+                definitionFile = uiapp.Application.OpenSharedParameterFile();
+            }
+            BindingMap bindingMap = uiapp.ActiveUIDocument.Document.ParameterBindings;
+            DefinitionGroups myGroups = definitionFile.Groups;
+            DefinitionGroup myGroup = myGroups.Create(param);
+            ForgeTypeId ft = SpecTypeId.String.Text;
+            ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, ft);
+            option.UserModifiable = false;
+            option.HideWhenNoValue = false;
+            option.Description = "CityJSON loaded attributes";
+            Definition myDefinition = myGroup.Definitions.Create(option);
+            CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
+            Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
+            myCategories.Insert(myCategory);
+            InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
+            bool instanceBindOK = bindingMap.Insert(myDefinition,
+                                                instanceBinding, BuiltInParameterGroup.PG_TEXT);
+            BindingMap map = uiapp.ActiveUIDocument.Document.ParameterBindings;
+            DefinitionBindingMapIterator it = map.ForwardIterator();
+            it.Reset();
+            while (it.MoveNext())
+            {
+                InternalDefinition def = it.Key as InternalDefinition;
+                if (def.Name == param)
+                    def.SetAllowVaryBetweenGroups(uiapp.ActiveUIDocument.Document, true);
+            }
+            return instanceBindOK;
+        }
+
+        private List<string> paramFinder(dynamic jCity)
         {
             List<string> parameters = new List<string>();
 
@@ -473,9 +522,9 @@ namespace cityjsonToRevit
                     {
                         continue;
                     }
-                    foreach(var Attrib in objProperties.attributes)
+                    foreach(var attr in objProperties.attributes)
                     {
-                        parameters.Add(Attrib.Name);
+                        parameters.Add(attr.Name);
                     }
                 }
             }
