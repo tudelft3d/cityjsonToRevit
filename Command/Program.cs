@@ -444,7 +444,7 @@ namespace cityjsonToRevit
                             double cjLon = xy[0];
 
                             bool newLocation = false;
-                            //User selects to update or choose the revit origin
+                            //User selects to update or choose  revit origin
                             using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
                             {
                                 mpv.ShowDialog();
@@ -537,19 +537,31 @@ namespace cityjsonToRevit
             {
                 string AddInPath = typeof(ExternalApplication).Assembly.Location;
                 string tempfile = Path.GetDirectoryName(AddInPath)+"\\parameters.txt";
-                using (File.Create(tempfile)) { }
+                using (File.OpenWrite(tempfile)) { }
                 uiapp.Application.SharedParametersFilename = tempfile;
                 definitionFile = uiapp.Application.OpenSharedParameterFile();
             }
             BindingMap bindingMap = uiapp.ActiveUIDocument.Document.ParameterBindings;
             DefinitionGroups myGroups = definitionFile.Groups;
-            DefinitionGroup myGroup = myGroups.Create(param);
-            ForgeTypeId ft = SpecTypeId.String.Text;
-            ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, ft);
-            option.UserModifiable = false;
-            option.HideWhenNoValue = true;
-            option.Description = "CityJSON loaded attributes";
-            Definition myDefinition = myGroup.Definitions.Create(option);
+            DefinitionGroup myGroup = null;
+            
+            if (myGroups.IsEmpty)
+                myGroup = myGroups.Create("CityJSON");
+            else 
+            {
+                myGroup = myGroups.Where(e => e.Name == "CityJSON").First();
+            }
+            if (myGroup==null)
+            myGroup = myGroups.Create("CityJSON");
+            Definition myDefinition = myGroup.Definitions.Where(e => e.Name == param).FirstOrDefault();
+            if (myDefinition == null)
+            {
+                ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, SpecTypeId.String.Text);
+                option.UserModifiable = false;
+                option.HideWhenNoValue = true;
+                option.Description = "CityJSON loaded attributes";
+                myDefinition = myGroup.Definitions.Create(option);
+            }
             CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
             Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
             myCategories.Insert(myCategory);
