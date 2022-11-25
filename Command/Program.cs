@@ -119,7 +119,8 @@ namespace cityjsonToRevit
                 return level;
             }
         }
-        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, string Lod, List<string> parameters)
+        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, 
+            string Lod, List<string> parameters, Dictionary<string, dynamic> ParentInfo)
         {
             List<XYZ> loopVertices = new List<XYZ>();
             TessellatedShapeBuilder builder = new TessellatedShapeBuilder();
@@ -168,7 +169,6 @@ namespace cityjsonToRevit
                                 builder.AddFace(new TessellatedFace(loopVertices, materialId));
                             }
 
-
                         }
                     }
                     builder.CloseConnectedFaceSet();
@@ -184,10 +184,28 @@ namespace cityjsonToRevit
                     ds.ApplicationDataId = "Geometry object id";
                     ds.Name = Namer + "-lod " + lod;
                     ds.SetShape(result.GetGeometricalObjects());
-                    
-                    foreach(string p in parameters)
+
+                    dynamic parentAtt = null;
+
+                    if (ParentInfo.ContainsKey(Namer))
+                    {
+                        parentAtt = ParentInfo[Namer];
+                    }
+
+
+                    foreach (string p in parameters)
                     {
                         Parameter para = ds.GetParameters(p).Where(e => e.Definition.Name == p).First();
+                        
+                        if(parentAtt!=null)
+                        {
+                            foreach(var patt in parentAtt)
+                            {
+                                if (patt.Name == p)
+                                    para.Set((string)patt);
+                            }
+                        }
+
                         if (cityObjProp.attributes == null)
                         {
                             continue;
@@ -499,7 +517,7 @@ namespace cityjsonToRevit
 
 
                                     Material mat = matSelector(materials, objType, doc);
-                                    CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets);
+                                    CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                                 }
                             }
                         }
