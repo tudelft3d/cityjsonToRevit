@@ -207,15 +207,20 @@ namespace cityjsonToRevit
                         }
 
                         if (cityObjProp.attributes == null)
-                        {
                             continue;
-                        }
+
                         foreach (var attr in cityObjProp.attributes)
                         {
 
                             if (attr.Name == p)
                                 para.Set((string)attr);
                         }
+                        if (p == "Object Name")
+                            para.Set(Namer);
+
+                        if (p == "Object Type")
+                            para.Set((string)cityObjProp.type);
+
                     }
                 }
 
@@ -472,7 +477,6 @@ namespace cityjsonToRevit
 
                             Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
 
-
                             foreach (string p in paramets)
                             {
                                 paramMaker(uiapp, p);
@@ -598,6 +602,8 @@ namespace cityjsonToRevit
                     }
                 }
             }
+            parameters.Add("Object Name");
+            parameters.Add("Object Type");
             parameters = parameters.Distinct().ToList();
             return parameters;
         }
