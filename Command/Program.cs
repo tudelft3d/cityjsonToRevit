@@ -196,8 +196,19 @@ namespace cityjsonToRevit
                     foreach (string p in parameters)
                     {
                         Parameter para = ds.GetParameters(p).Where(e => e.Definition.Name == p).First();
-                        
-                        if(parentAtt!=null)
+                        if (p == "Object Name")
+                        {
+                            para.Set(Namer);
+                            continue;
+                        }
+
+                        if (p == "Object Type")
+                        {
+                            para.Set((string)cityObjProp.type);
+                            continue;
+                        }
+
+                        if (parentAtt!=null)
                         {
                             foreach(var patt in parentAtt)
                             {
@@ -215,11 +226,7 @@ namespace cityjsonToRevit
                             if (attr.Name == p)
                                 para.Set((string)attr);
                         }
-                        if (p == "Object Name")
-                            para.Set(Namer);
 
-                        if (p == "Object Type")
-                            para.Set((string)cityObjProp.type);
 
                     }
                 }
