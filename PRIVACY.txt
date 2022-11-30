@@ -1,0 +1,7 @@
+The privacy policy
+__________________
+
+- This plugin collects data from JSON files locally and will not share the content with the publisher or any other third parties.
+- Publisher will have access to users basic and personal info through project directory on the Autodesk app store and not collecting any additional information.
+- Any third party with whom an App shares that data will provide the same protection of that data as stated in the App’s privacy policy.
+- Users can revoke consent and/or request deletion of their data by emailing the Support Contact. 
