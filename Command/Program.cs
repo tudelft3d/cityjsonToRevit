@@ -246,7 +246,7 @@ namespace cityjsonToRevit
                 {
                     t.Start();
 
-                    ElementId materialId = Material.Create(doc, "matDef");
+                    ElementId materialId = Material.Create(doc, "cj-Default");
                     Material materialDef = doc.GetElement(materialId) as Material;
 
                     Asset asset = doc.Application.GetAssets(AssetType.Appearance).Where(e => e.Name == "Generic").First();
@@ -259,7 +259,7 @@ namespace cityjsonToRevit
                     cj01.Color = new Color(160, 82, 45);
                     mats.Add(cj01);
                     Material cj02 = materialDef.Duplicate("cj-Group");
-                    cj02.Color = new Color(218, 165, 32);
+                    cj02.Color = new Color(250, 128, 114);
                     mats.Add(cj02);
                     Material cj03 = materialDef.Duplicate("cj-Furniture");
                     cj03.Color = new Color(255, 69, 0);
@@ -271,7 +271,7 @@ namespace cityjsonToRevit
                     cj05.Color = new Color(0, 204, 0);
                     mats.Add(cj05);
                     Material cj06 = materialDef.Duplicate("cj-Railway");
-                    cj06.Color = new Color(0, 0, 0);
+                    cj06.Color = new Color(20, 20, 20);
                     mats.Add(cj06);
                     Material cj07 = materialDef.Duplicate("cj-Road");
                     cj07.Color = new Color(64, 64, 64);
@@ -331,7 +331,7 @@ namespace cityjsonToRevit
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             Material m
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "matDef").First();
+              = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Default").First();
 
             switch (type) 
             {
@@ -456,7 +456,7 @@ namespace cityjsonToRevit
                             double cjLon = xy[0];
 
                             bool newLocation = false;
-                            //User selects to update or choose  revit origin
+                            //User select to update or choose revit origin
                             using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
                             {
                                 mpv.ShowDialog();
