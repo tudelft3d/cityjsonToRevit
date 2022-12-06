@@ -29,7 +29,7 @@ namespace cityjsonToRevit
             // Button icons directory
             string ButtonIconsFolder = Path.GetDirectoryName(AddInPath);
             //Add image
-            Uri imagepath1 = new Uri(Path.Combine(ButtonIconsFolder, "images/TUD.png"), UriKind.Absolute);
+            Uri imagepath1 = new Uri(Path.Combine(ButtonIconsFolder, "images/3dgeo.png"), UriKind.Absolute);
             BitmapImage image1 = new BitmapImage(imagepath1);
 
             PushButton pushButton1 = panel.AddItem(button1) as PushButton;
