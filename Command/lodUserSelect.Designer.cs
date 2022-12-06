@@ -39,7 +39,7 @@ namespace cityjsonToRevit
             // 
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Items.AddRange(lods.ToArray());
-            this.comboBox1.Location = new System.Drawing.Point(134, 53);
+            this.comboBox1.Location = new System.Drawing.Point(150, 53);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(104, 21);
             this.comboBox1.TabIndex = 0;
@@ -47,7 +47,7 @@ namespace cityjsonToRevit
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(96, 58);
+            this.label1.Location = new System.Drawing.Point(110, 58);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 1;
@@ -65,7 +65,7 @@ namespace cityjsonToRevit
             // 
             // setBtn
             // 
-            this.setBtn.Location = new System.Drawing.Point(244, 52);
+            this.setBtn.Location = new System.Drawing.Point(260, 52);
             this.setBtn.Name = "setBtn";
             this.setBtn.Size = new System.Drawing.Size(75, 23);
             this.setBtn.TabIndex = 3;
@@ -77,7 +77,7 @@ namespace cityjsonToRevit
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(456, 90);
+            this.ClientSize = new System.Drawing.Size(490, 90);
             this.Controls.Add(this.setBtn);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
