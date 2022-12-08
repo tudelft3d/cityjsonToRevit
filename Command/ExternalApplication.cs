@@ -35,11 +35,14 @@ namespace cityjsonToRevit
             PushButton pushButton1 = panel.AddItem(button1) as PushButton;
             pushButton1.LargeImage = image1;
 
-            pushButton1.ToolTip = "Opens Import Manager Form";
+            pushButton1.ToolTip = "Import geometries and attributes from a CityJSON file";
 
+            pushButton1.LongDescription = "Specify the CityJSON file that you want to import. Choose whether to keep or update Revit Origin. In the event that there are multiple LODs, identify the level you desire to be generated.";
 
-            ContextualHelp contextHelp = new ContextualHelp(ContextualHelpType.Url, "https://3d.bk.tudelft.nl/");
+            ContextualHelp contextHelp = new ContextualHelp(ContextualHelpType.Url, "https://apps.autodesk.com/RVT/en/Detail/HelpDoc?appId=7787623024858844510&appLang=en&os=Win64&mode=preview");
             pushButton1.SetContextualHelp(contextHelp);
+
+
 
             return Result.Succeeded;
         }
