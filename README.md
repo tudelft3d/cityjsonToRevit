@@ -36,5 +36,9 @@ The creation of geometries may take seconds to several minutes, depending on the
 
 After a successful loading of the file, users may alter the assigned materials based on object types using the "material editor” for further uses such as rendering. The materials are all customized generics with a prefix "cj-".
 
+## YouTube 3D BAG Example
 
+Following you can watch the youtube video for importing a CityJSON file of a 3D BAG model:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/WjDxKxvNdto/0.jpg)](https://www.youtube.com/watch?v=YWjDxKxvNdto)
 
