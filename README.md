@@ -1,7 +1,7 @@
 # cityjsonToRevit
 A plugin for importing CityJSON geometries and attributes to Autodesk Revit 2023
 
-[![GitHub license](https://img.shields.io/github/license/tudelft3d/cityjsonToRevit?style=for-the-badge)](https://github.com/tudelft3d/cityjsonToRevit/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/tudelft3d/cityjsonToRevit?style=for-the-badge)](https://github.com/tudelft3d/cityjsonToRevit/blob/main/LICENSE.txt)
 
 ## Introduction
 
