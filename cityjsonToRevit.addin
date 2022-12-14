@@ -19,4 +19,15 @@
     <VendorId>Amir</VendorId>
     <VendorDescription>TUD</VendorDescription>
   </AddIn>
+  <AddIn Type="Command">
+    <Name>cityjsonToRevit</Name>
+    <Assembly>cityjsonToRevit.dll</Assembly>
+    <AddInId>ED8E8E87-7EAF-4A81-B839-9799679E4D73</AddInId>
+    <FullClassName>cityjsonToRevit.Hide</FullClassName>
+    <Text>HideIt</Text>
+    <Description>HideUnhide created elements</Description>
+    <VendorId>Amir</VendorId>
+    <VendorDescription>TUD</VendorDescription>
+    <VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+  </AddIn>
 </RevitAddIns>
