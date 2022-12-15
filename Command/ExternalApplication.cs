@@ -17,13 +17,13 @@ namespace cityjsonToRevit
         public Result OnStartup(UIControlledApplication application)
         {
             //create Ribbon Tab
-            application.CreateRibbonTab("3D geoinfo");
+            application.CreateRibbonTab("3Dgeoinfo");
             string path = Assembly.GetExecutingAssembly().Location;
 
 
             PushButtonData button1 = new PushButtonData("Button1", "Import", path, "cityjsonToRevit.Program");
             PushButtonData button2 = new PushButtonData("Button2", "Hide/Unhide", path, "cityjsonToRevit.Hide");
-            RibbonPanel panel = application.CreateRibbonPanel("3D geoinfo", "CityJSON");
+            RibbonPanel panel = application.CreateRibbonPanel("3Dgeoinfo", "CityJSON");
 
             // ExternalCommands assembly path
             string AddInPath = typeof(ExternalApplication).Assembly.Location;

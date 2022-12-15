@@ -35,15 +35,26 @@ namespace cityjsonToRevit
 
                 foreach (ElementId eid in elemIds)
                 {
-                    if (doc.GetElement(eid).IsHidden(actView))
+                    Element elem = doc.GetElement(eid);
+                    Parameter para = elem.GetParameters("Object Name").First();
+
+                    if (elem.IsHidden(actView) && para.HasValue)
                     {
                         uhlist.Add(eid);
                     }
-                    else
+                    else if (!elem.IsHidden(actView) && para.HasValue)
                     {
                         hlist.Add(eid);
                     }
                 }
+
+                if (hlist.Count==0 && uhlist.Count == 0)
+                {
+                    TaskDialog.Show("Import CityJSON file", "There is no CityJSON geometry loaded.\n");
+                    trans.RollBack();
+                    return Result.Failed;
+                }
+
                 ICollection<ElementId> uhcol = uhlist;
                 ICollection<ElementId> hcol = hlist;
 
