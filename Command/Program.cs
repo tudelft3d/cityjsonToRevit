@@ -560,7 +560,7 @@ namespace cityjsonToRevit
                 myGroup = myGroups.Create("CityJSON");
             else 
             {
-                myGroup = myGroups.Where(e => e.Name == "CityJSON").First();
+                myGroup = myGroups.Where(e => e.Name == "CityJSON").FirstOrDefault();
             }
             if (myGroup==null)
             myGroup = myGroups.Create("CityJSON");

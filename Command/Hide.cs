@@ -36,15 +36,18 @@ namespace cityjsonToRevit
                 foreach (ElementId eid in elemIds)
                 {
                     Element elem = doc.GetElement(eid);
-                    Parameter para = elem.GetParameters("Object Name").First();
-
-                    if (elem.IsHidden(actView) && para.HasValue)
+                    IList<Parameter> paramets = elem.GetParameters("Object Name");
+                    if (paramets.Count > 0)
                     {
-                        uhlist.Add(eid);
-                    }
-                    else if (!elem.IsHidden(actView) && para.HasValue)
-                    {
-                        hlist.Add(eid);
+                        Parameter para = paramets.First();
+                        if (elem.IsHidden(actView) && para.HasValue)
+                        {
+                            uhlist.Add(eid);
+                        }
+                        else if (!elem.IsHidden(actView) && para.HasValue)
+                        {
+                            hlist.Add(eid);
+                        }
                     }
                 }
 
