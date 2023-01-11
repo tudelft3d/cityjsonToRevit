@@ -23,6 +23,8 @@ namespace cityjsonToRevit
 
             PushButtonData button1 = new PushButtonData("Button1", "Import", path, "cityjsonToRevit.Program");
             PushButtonData button2 = new PushButtonData("Button2", "Hide/Unhide", path, "cityjsonToRevit.Hide");
+            PushButtonData button3 = new PushButtonData("Button3", "3D BAG", path, "cityjsonToRevit.3dBag");
+
             RibbonPanel panel = application.CreateRibbonPanel("3Dgeoinfo", "CityJSON");
 
             // ExternalCommands assembly path
@@ -36,11 +38,17 @@ namespace cityjsonToRevit
             Uri imagepath2 = new Uri(Path.Combine(ButtonIconsFolder, "images/eye.png"), UriKind.Absolute);
             BitmapImage image2 = new BitmapImage(imagepath2);
 
+            Uri imagepath3 = new Uri(Path.Combine(ButtonIconsFolder, "images/3dgeo.png"), UriKind.Absolute);
+            BitmapImage image3 = new BitmapImage(imagepath3);
+
             PushButton pushButton1 = panel.AddItem(button1) as PushButton;
             pushButton1.LargeImage = image1;
 
             PushButton pushButton2 = panel.AddItem(button2) as PushButton;
             pushButton2.LargeImage = image2;
+
+            PushButton pushButton3 = panel.AddItem(button3) as PushButton;
+            pushButton3.LargeImage = image3;
 
             pushButton1.ToolTip = "Import geometries and attributes from a CityJSON file";
             pushButton1.LongDescription = "Specify the CityJSON file that you want to import. Choose whether to keep or update Revit Origin. In the event that there are multiple LODs, identify the level you desire to be generated.";
@@ -50,6 +58,9 @@ namespace cityjsonToRevit
             pushButton2.ToolTip = "Hide/Unhide imported elements in the active view";
             pushButton2.SetContextualHelp(contextHelp);
 
+            pushButton3.ToolTip = "Import geometries and attributes from 3D BAG server.";
+            pushButton3.LongDescription = "This option is only available for locations inside the Netherlands.";
+            pushButton3.SetContextualHelp(contextHelp);
 
             return Result.Succeeded;
         }

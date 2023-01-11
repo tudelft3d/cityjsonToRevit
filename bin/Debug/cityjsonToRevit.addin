@@ -30,4 +30,15 @@
     <VendorDescription>TUD</VendorDescription>
     <VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
   </AddIn>
+  <AddIn Type="Command">
+    <Name>cityjsonToRevit</Name>
+    <Assembly>cityjsonToRevit.dll</Assembly>
+    <AddInId>913DA4BE-C393-4958-B5EE-A0C21BF99D89</AddInId>
+    <FullClassName>cityjsonToRevit.3dBag</FullClassName>
+    <Text>3DBAG</Text>
+    <Description>creates generic model elements from 3dbag server</Description>
+    <VendorId>Amir</VendorId>
+    <VendorDescription>TUD</VendorDescription>
+    <VisibilityMode>NotVisibleWhenNoActiveDocument</VisibilityMode>
+  </AddIn>
 </RevitAddIns>

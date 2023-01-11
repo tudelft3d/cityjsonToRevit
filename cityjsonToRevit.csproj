@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command\3dBag.cs" />
     <Compile Include="Command\Hide.cs" />
     <Compile Include="Command\Program.cs" />
     <Compile Include="Command\ExternalApplication.cs" />
