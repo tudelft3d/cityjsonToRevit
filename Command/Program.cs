@@ -195,7 +195,7 @@ namespace cityjsonToRevit
 
                     foreach (string p in parameters)
                     {
-                        Parameter para = ds.GetParameters(p).Where(e => e.Definition.Name == p).First();
+                        Parameter para = ds.GetParameters(p).Where(e => e.Definition.Name == p).FirstOrDefault();
                         if (p == "Object Name")
                         {
                             para.Set(Namer);
@@ -370,6 +370,16 @@ namespace cityjsonToRevit
             return m;
         }
 
+        private bool checkExist(string filepath, string loadedFiles)
+        {
+            string[] lfs = loadedFiles.Split(new[] { '$' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach( string lf in lfs)
+            {
+                if (lf == filepath)
+                    return true;
+            }
+            return false;
+        }
 
         public static List<XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
         {
@@ -399,7 +409,13 @@ namespace cityjsonToRevit
                 return Result.Failed;
             }
 
-            
+
+            ProjectInfo projectInfo = doc.ProjectInformation;
+            Parameter parLoad = projectInfo.GetParameters("loadedFiles").Where(e => e.Definition.Name == "loadedFiles").FirstOrDefault();
+            String files = string.Empty;
+
+            if (parLoad!=null)
+                files = parLoad.AsString();
 
             List<Material> materials = matGenerator(doc);
             //starting transaction
@@ -407,7 +423,7 @@ namespace cityjsonToRevit
             {
                 trans.Start();
                 var fileContent = string.Empty;
-                var filePath = string.Empty;
+                string filePath = string.Empty;
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
 
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -417,12 +433,17 @@ namespace cityjsonToRevit
                     openFileDialog.Filter = "JSON files (*.JSON)|*.JSON";
                     openFileDialog.FilterIndex = 1;
                     openFileDialog.RestoreDirectory = true;
-                    
+
+                    //Get the path of specified file
                     if (openFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        //Get the path of specified file
                         filePath = openFileDialog.FileName;
 
+                        if (checkExist(filePath, files))
+                        {
+                            TaskDialog.Show("Loading an existing file", "The file has been loaded before.\n");
+                            return Result.Failed;
+                        }
                         //Read the contents of the file into a stream
                         var fileStream = openFileDialog.OpenFile();
 
@@ -534,6 +555,10 @@ namespace cityjsonToRevit
                         }
                     }
                 }
+
+                files = files +"$"+ filePath;
+                parLoad = projectInfo.GetParameters("loadedFiles").Where(e => e.Definition.Name == "loadedFiles").FirstOrDefault();
+                parLoad.Set(files);
                 trans.Commit();
             }
             return Result.Succeeded;
@@ -575,6 +600,8 @@ namespace cityjsonToRevit
             }
             CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
             Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
+            if(param == "loadedFiles")
+                myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_ProjectInformation);
             myCategories.Insert(myCategory);
             InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
             bool instanceBindOK = bindingMap.Insert(myDefinition,
@@ -611,6 +638,7 @@ namespace cityjsonToRevit
             }
             parameters.Add("Object Name");
             parameters.Add("Object Type");
+            parameters.Add("loadedFiles");
             parameters = parameters.Distinct().ToList();
             return parameters;
         }
