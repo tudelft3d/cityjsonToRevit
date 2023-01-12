@@ -28,18 +28,22 @@ namespace cityjsonToRevit
             string cjUrl = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_";
             foreach (string tileNum in tileNums)
             {
+
                 string cjUrlAll = cjUrl + tileNum + ".json" + ".gz";
                 string gzFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\TEMP\\" + tileNum + ".gz";
-                using (var client2 = new WebClient())
+                if (!File.Exists(gzFile))
                 {
-                    client2.DownloadFile(cjUrlAll, gzFile);
+                    using (var client2 = new WebClient())
+                    {
+                        client2.DownloadFile(cjUrlAll, gzFile);
+                    }
                 }
                 using (FileStream fileToDecompressAsStream = new FileStream(gzFile, FileMode.Open))
                 using (GZipStream decompressionStream = new GZipStream(fileToDecompressAsStream, CompressionMode.Decompress))
                 using (StreamReader sr = new StreamReader(decompressionStream))
                 {
-                    string json = sr.ReadToEnd();
-                    var json_obj = JsonConvert.DeserializeObject(json);
+                        string json = sr.ReadToEnd();
+                        var json_obj = JsonConvert.DeserializeObject(json);
                 }
             }
 
