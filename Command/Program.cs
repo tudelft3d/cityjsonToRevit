@@ -494,13 +494,16 @@ namespace cityjsonToRevit
                             double cjLon = xy[0];
 
                             bool newLocation = false;
-                            //User select to update or choose revit origin
-                            using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
+                            if (latDeg != cjLat || lonDeg != cjLon)
                             {
-                                mpv.ShowDialog();
-                                newLocation = mpv._loc;
+                                //User select to update or choose revit origin
+                                using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
+                                {
+                                    mpv.ShowDialog();
+                                    newLocation = mpv._loc;
+                                }
                             }
-                            
+                           
                             switch (newLocation)
                             {
                                 case true:
