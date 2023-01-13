@@ -184,7 +184,6 @@ namespace cityjsonToRevit
                     ds.ApplicationDataId = "Geometry object id";
                     ds.Name = Namer + "-lod " + lod;
                     ds.SetShape(result.GetGeometricalObjects());
-
                     dynamic parentAtt = null;
 
                     if (ParentInfo.ContainsKey(Namer))
@@ -381,9 +380,17 @@ namespace cityjsonToRevit
             return false;
         }
 
-        public static List<XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+
+        private Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+
         {
             List<XYZ> vertList = new List<XYZ>();
+            double minX = double.MaxValue;
+            double maxX = double.MinValue;
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
+            double minZ = double.MaxValue;
+            double maxZ = double.MinValue;
             foreach (var vertex in cityJ.vertices)
             {
                 double x = (vertex[0] * cityJ.transform.scale[0]) + transX;
@@ -394,8 +401,16 @@ namespace cityjsonToRevit
                 double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
                 XYZ vert = new XYZ(xx, yy, zz);
                 vertList.Add(vert);
+                minX = Math.Min(minX, xx);
+                maxX = Math.Max(maxX, xx);
+                minY = Math.Min(minY, yy);
+                maxY = Math.Max(maxY, yy);
+                minZ = Math.Min(minZ, zz);
+                maxZ = Math.Max(maxZ, zz);
             }
-            return vertList;
+            XYZ minPoint = new XYZ(minX, minY, minZ);
+            XYZ maxPoint = new XYZ(maxX, maxY, maxZ);
+            return Tuple.Create(vertList, minPoint, maxPoint);
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
@@ -425,7 +440,8 @@ namespace cityjsonToRevit
                 var fileContent = string.Empty;
                 string filePath = string.Empty;
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
-
+                XYZ minPoint = new XYZ();
+                XYZ maxPoint = new XYZ();
                 using (OpenFileDialog openFileDialog = new OpenFileDialog())
                 {
                     openFileDialog.Title = "Open CityJSON file";
@@ -460,11 +476,14 @@ namespace cityjsonToRevit
                                 return Result.Failed;
                             }
                             List<XYZ> vertList = new List<XYZ>();
+
                             int epsgNo = epsgNum(jCity);
                             if(epsgNo == -1)
                             {
                                 TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
-                                vertList = vertBuilder(jCity, 0, 0);
+                                vertList = vertBuilder(jCity, 0, 0).Item1;
+                                minPoint = vertBuilder(jCity, 0, 0).Item2;
+                                maxPoint = vertBuilder(jCity, 0, 0).Item3;
                                 goto Checker;
                             }
                             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
@@ -488,7 +507,9 @@ namespace cityjsonToRevit
                             {
                                 case true:
                                     UpdateSiteLocation(doc, jCity);
-                                    vertList = vertBuilder(jCity, 0, 0);
+                                    vertList = vertBuilder(jCity, 0, 0).Item1;
+                                    minPoint = vertBuilder(jCity, 0, 0).Item2;
+                                    maxPoint = vertBuilder(jCity, 0, 0).Item3;
                                     break;
                                 default:
                                     double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
@@ -496,7 +517,9 @@ namespace cityjsonToRevit
                                     PointProjectorRev(epsgNo, tranR);
                                     double tranx = tranC[0] - tranR[0];
                                     double trany = tranC[1] - tranR[1];
-                                    vertList = vertBuilder(jCity, tranx, trany);
+                                    vertList = vertBuilder(jCity, tranx, trany).Item1;
+                                    minPoint = vertBuilder(jCity, tranx, trany).Item2;
+                                    maxPoint = vertBuilder(jCity, tranx, trany).Item3;
                                     break;
                             }
                         Checker:
@@ -537,17 +560,12 @@ namespace cityjsonToRevit
 
                                 }
                             }
-
-
-
                             foreach (var objects in jCity.CityObjects)
                             {
                                 foreach (var objProperties in objects)
                                 {
                                     string attributeName = objects.Name;
                                     string objType = unchecked((string)objProperties.type);
-
-
                                     Material mat = matSelector(materials, objType, doc);
                                     CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                                 }
@@ -555,12 +573,16 @@ namespace cityjsonToRevit
                         }
                     }
                 }
+                IList<UIView> views = uidoc.GetOpenUIViews();
+                foreach (UIView view in views)
+                view.ZoomAndCenterRectangle(minPoint, maxPoint);
 
                 files = files +"$"+ filePath;
                 parLoad = projectInfo.GetParameters("loadedFiles").Where(e => e.Definition.Name == "loadedFiles").FirstOrDefault();
                 parLoad.Set(files);
                 trans.Commit();
             }
+
             return Result.Succeeded;
         }
 
