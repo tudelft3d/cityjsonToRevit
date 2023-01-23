@@ -233,9 +233,11 @@ namespace cityjsonToRevit
             }
         }
 
-        public static List<Material> matGenerator(Document doc, FilteredElementCollector collector)
+        public static List<Material> matGenerator(Document doc)
+         {
+            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
 
-        {
+
             IEnumerable<Material> existingMats
               = collector.ToElements().Cast<Material>();
             List<Material> mats = new List<Material>();
@@ -296,10 +298,10 @@ namespace cityjsonToRevit
             return mats;
         }
 
-
-        public static Material matSelector(List<Material> materials, string type, FilteredElementCollector collector)
+        public static Material matSelector(List<Material> materials, string type, Document doc)
 
         {
+            FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             Material m
               = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Default").First();
 
@@ -421,9 +423,9 @@ namespace cityjsonToRevit
                 //Get the path of specified file
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    FilteredElementCollector matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
-                    List<Material> materials = matGenerator(doc , matcollector);
-                    matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
+
+                    List<Material> materials = matGenerator(doc);
+
 
                     using (Transaction trans = new Transaction(doc, "Load CityJSON"))
                     {
@@ -544,7 +546,7 @@ namespace cityjsonToRevit
                                 {
                                     string attributeName = objects.Name;
                                     string objType = unchecked((string)objProperties.type);
-                                    Material mat = matSelector(materials, objType, matcollector);
+                                    Material mat = matSelector(materials, objType, doc);
                                     CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                                 }
                             }
