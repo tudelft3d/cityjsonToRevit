@@ -430,27 +430,31 @@ namespace cityjsonToRevit
             if (parLoad!=null)
                 files = parLoad.AsString();
 
-            List<Material> materials = matGenerator(doc);
             //starting transaction
-            using (Transaction trans = new Transaction(doc, "Load CityJSON"))
-            {
-                trans.Start();
+
                 var fileContent = string.Empty;
                 string filePath = string.Empty;
                 XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
                 XYZ minPoint = new XYZ();
                 XYZ maxPoint = new XYZ();
-                using (OpenFileDialog openFileDialog = new OpenFileDialog())
-                {
-                    openFileDialog.Title = "Open CityJSON file";
-                    openFileDialog.InitialDirectory = "c:\\";
-                    openFileDialog.Filter = "JSON files (*.JSON)|*.JSON";
-                    openFileDialog.FilterIndex = 1;
-                    openFileDialog.RestoreDirectory = true;
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.Title = "Open CityJSON file";
+                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.Filter = "JSON files (*.JSON)|*.JSON";
+                openFileDialog.FilterIndex = 1;
+                openFileDialog.RestoreDirectory = true;
 
-                    //Get the path of specified file
-                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                //Get the path of specified file
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+
+                    List<Material> materials = matGenerator(doc);
+
+
+                    using (Transaction trans = new Transaction(doc, "Load CityJSON"))
                     {
+                        trans.Start();
                         filePath = openFileDialog.FileName;
 
                         if (checkExist(filePath, files))
@@ -476,7 +480,7 @@ namespace cityjsonToRevit
                             List<XYZ> vertList = new List<XYZ>();
 
                             int epsgNo = epsgNum(jCity);
-                            if(epsgNo == -1)
+                            if (epsgNo == -1)
                             {
                                 TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
                                 vertList = vertBuilder(jCity, 0, 0).Item1;
@@ -503,7 +507,7 @@ namespace cityjsonToRevit
                                     newLocation = mpv._loc;
                                 }
                             }
-                           
+
                             switch (newLocation)
                             {
                                 case true:
@@ -525,7 +529,7 @@ namespace cityjsonToRevit
                             }
                         Checker:
                             string lodSpec = lodSelecter(jCity);
-                            List<string> paramets =  paramFinder(jCity);
+                            List<string> paramets = paramFinder(jCity);
 
                             Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
 
@@ -553,7 +557,7 @@ namespace cityjsonToRevit
                                     var children = objProperties.children;
                                     if (children != null && attributes != null)
                                     {
-                                        foreach(string child in children)
+                                        foreach (string child in children)
                                         {
                                             semanticParentInfo.Add(child, attributes);
                                         }
@@ -571,48 +575,42 @@ namespace cityjsonToRevit
                                     CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                                 }
                             }
+
                         }
+
+                        FilteredElementCollector collector = new FilteredElementCollector(doc);
+                        View3D view3D = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
+                        if (view3D == null)
+                        {
+                            FilteredElementCollector collector0 = new FilteredElementCollector(doc);
+                            ViewFamilyType viewFamilyType = collector0.OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
+                                                      .FirstOrDefault(y => y.ViewFamily == ViewFamily.ThreeDimensional);
+                            view3D = View3D.CreateIsometric(
+                                                          doc, viewFamilyType.Id);
+                            view3D.Name = "CityJSON 3D";
+                        }
+
+
+                        //IList <UIView> views = uidoc.GetOpenUIViews();
+                        ////uidoc.ActiveView = 
+                        //foreach (UIView view in views)
+                        //view.ZoomAndCenterRectangle(minPoint, maxPoint);
+
+                        files = files + "$" + filePath;
+                        parLoad = projectInfo.GetParameters("loadedFiles").Where(e => e.Definition.Name == "loadedFiles").FirstOrDefault();
+                        parLoad.Set(files);
+                        trans.Commit();
+                        uidoc.RequestViewChange(view3D);
+                        IList<UIView> views = uidoc.GetOpenUIViews();
+                        foreach (UIView view in views)
+                        {
+                            if (view.ViewId == view3D.Id)
+                                view.ZoomAndCenterRectangle(minPoint, maxPoint);
+                        }
+                        //
                     }
                 }
-                FilteredElementCollector collector = new FilteredElementCollector(doc);
-                View3D view3D = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
-                if (view3D == null)
-                {
-                    FilteredElementCollector collector0 = new FilteredElementCollector(doc);
-                    ViewFamilyType viewFamilyType = collector0.OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
-                                              .FirstOrDefault(y => y.ViewFamily == ViewFamily.ThreeDimensional);
-                    view3D = View3D.CreateIsometric(
-                                                  doc, viewFamilyType.Id);
-                    view3D.Name = "CityJSON 3D";
-                }
-                
-
-                //IList <UIView> views = uidoc.GetOpenUIViews();
-                ////uidoc.ActiveView = 
-                //foreach (UIView view in views)
-                //view.ZoomAndCenterRectangle(minPoint, maxPoint);
-
-                files = files +"$"+ filePath;
-                parLoad = projectInfo.GetParameters("loadedFiles").Where(e => e.Definition.Name == "loadedFiles").FirstOrDefault();
-                parLoad.Set(files);
-                trans.Commit();
-                uidoc.RequestViewChange(view3D);
-                IList <UIView> views = uidoc.GetOpenUIViews();
-                foreach (UIView view in views)
-                {
-                    if (view.ViewId == view3D.Id)
-                    view.ZoomAndCenterRectangle(minPoint, maxPoint);
-                }
-                //
             }
-            //using (Transaction ttNew = new Transaction(doc, "View Loaded Geometries"))
-            //{
-            //    ttNew.Start();
-            //    FilteredElementCollector collector = new FilteredElementCollector(doc);
-            //    View3D v3d = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
-            //    uidoc.ActiveView = v3d;
-            //    ttNew.Commit();
-            //}
 
             return Result.Succeeded;
         }
