@@ -236,10 +236,10 @@ namespace cityjsonToRevit
          {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
 
-            IEnumerable<Material> checkMat
-              = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building");
+            IEnumerable<Material> existingMats
+              = collector.ToElements().Cast<Material>();
             List<Material> mats = new List<Material>();
-            if (!checkMat.Any())
+            if (!existingMats.Any(e => e.Name == "cj-Building"))
             {
                 using (Transaction t = new Transaction(doc, "Set CJ Materials"))
                 {
@@ -248,83 +248,53 @@ namespace cityjsonToRevit
                     ElementId materialId = Material.Create(doc, "cj-Default");
                     Material materialDef = doc.GetElement(materialId) as Material;
 
-                    Asset asset = doc.Application.GetAssets(AssetType.Appearance).Where(e => e.Name == "Generic").First();
+                    Asset asset = doc.Application.GetAssets(AssetType.Appearance).Where(e => e.Name == "Generic").FirstOrDefault();
                     AppearanceAssetElement assetElement = AppearanceAssetElement.Create(doc, "cjAsset", asset);
-
-                    Material cj00 = materialDef.Duplicate("cj-Building");
-                    cj00.Color = new Color(119, 136, 153);
-                    mats.Add(cj00);
-                    Material cj01 = materialDef.Duplicate("cj-Bridge");
-                    cj01.Color = new Color(160, 82, 45);
-                    mats.Add(cj01);
-                    Material cj02 = materialDef.Duplicate("cj-Group");
-                    cj02.Color = new Color(250, 128, 114);
-                    mats.Add(cj02);
-                    Material cj03 = materialDef.Duplicate("cj-Furniture");
-                    cj03.Color = new Color(255, 69, 0);
-                    mats.Add(cj03);
-                    Material cj04 = materialDef.Duplicate("cj-Landuse");
-                    cj04.Color = new Color(218, 165, 32);
-                    mats.Add(cj04);
-                    Material cj05 = materialDef.Duplicate("cj-Plants");
-                    cj05.Color = new Color(0, 204, 0);
-                    mats.Add(cj05);
-                    Material cj06 = materialDef.Duplicate("cj-Railway");
-                    cj06.Color = new Color(20, 20, 20);
-                    mats.Add(cj06);
-                    Material cj07 = materialDef.Duplicate("cj-Road");
-                    cj07.Color = new Color(64, 64, 64);
-                    mats.Add(cj07);
-                    Material cj08 = materialDef.Duplicate("cj-Tunnel");
-                    cj08.Color = new Color(51, 25, 0);
-                    mats.Add(cj08);
-                    Material cj09 = materialDef.Duplicate("cj-Water");
-                    cj09.Color = new Color(0, 128, 255);
-                    mats.Add(cj09);
-
-                    foreach (Material m in mats)
+                    var materialProperties = new[] 
                     {
-
+                        new { name = "cj-Building", color = new Color(119, 136, 153) },
+                        new { name = "cj-Bridge", color = new Color(160, 82, 45) },
+                        new { name = "cj-Group", color = new Color(250, 128, 114) },
+                        new { name = "cj-Furniture", color = new Color(255, 69, 0) },
+                        new { name = "cj-Landuse", color = new Color(218, 165, 32) },
+                        new { name = "cj-Plants", color = new Color(0, 204, 0) },
+                        new { name = "cj-Railway", color = new Color(20, 20, 20) },
+                        new { name = "cj-Road", color = new Color(64, 64, 64) },
+                        new { name = "cj-Tunnel", color = new Color(51, 25, 0) },
+                        new { name = "cj-Water", color = new Color(0, 128, 255) }
+                    };
+                    foreach (var materialProp in materialProperties)
+                    {
+                        Material newMaterial = materialDef.Duplicate(materialProp.name);
+                        newMaterial.Color = materialProp.color;
                         ElementId duplicateAssetElementId = ElementId.InvalidElementId;
-                        AppearanceAssetElement duplicateAssetElement = assetElement.Duplicate(m.Name);
-                        m.AppearanceAssetId = duplicateAssetElement.Id;
+                        AppearanceAssetElement duplicateAssetElement = assetElement.Duplicate(newMaterial.Name);
+                        newMaterial.AppearanceAssetId = duplicateAssetElement.Id;
                         duplicateAssetElementId = duplicateAssetElement.Id;
                         using (AppearanceAssetEditScope editScope = new AppearanceAssetEditScope(assetElement.Document))
                         {
                             Asset editableAsset = editScope.Start(duplicateAssetElementId);
                             AssetPropertyDoubleArray4d genericDiffuseProperty = editableAsset.FindByName("generic_diffuse") as AssetPropertyDoubleArray4d;
-                            genericDiffuseProperty.SetValueAsColor(m.Color);
+                            genericDiffuseProperty.SetValueAsColor(newMaterial.Color);
                             editScope.Commit(true);
                         }
+                        mats.Add(newMaterial);
                     }
                     t.Commit();
                 }
             }
             else
             {
-                Material m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Building").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Bridge").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Group").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Furniture").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Landuse").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Plants").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Railway").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Road").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Tunnel").First();
-                mats.Add(m);
-                m = collector.ToElements().Cast<Material>().Where(e => e.Name == "cj-Water").First();
-                mats.Add(m);
+                var materialNames = new[] { "cj-Building", "cj-Bridge", "cj-Group", "cj-Furniture", "cj-Landuse", "cj-Plants", "cj-Railway", "cj-Road", "cj-Tunnel", "cj-Water" };
+                foreach (string name in materialNames)
+                {
+                    Material m = existingMats.FirstOrDefault(e => e.Name == name);
+                    if (m != null)
+                        mats.Add(m);
+                }
             }
             return mats;
-         }
+        }
 
         private Material matSelector(List<Material> materials, string type, Document doc)
         {
