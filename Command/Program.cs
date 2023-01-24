@@ -1,15 +1,15 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
+using Autodesk.Revit.DB.Visual;
 using Autodesk.Revit.UI;
+using DotSpatial.Projections;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 using Document = Autodesk.Revit.DB.Document;
-using DotSpatial.Projections;
-using Autodesk.Revit.DB.Visual;
 
 
 namespace cityjsonToRevit
@@ -19,11 +19,11 @@ namespace cityjsonToRevit
     class Program : IExternalCommand
     {
         const double angleRatio = Math.PI / 180;
-       
+
         public int epsgNum(dynamic cityJ)
         {
             string epsg = unchecked((string)cityJ.metadata.referenceSystem);
-            if(epsg == null)
+            if (epsg == null)
             {
                 return -1;
             }
@@ -119,7 +119,7 @@ namespace cityjsonToRevit
                 return level;
             }
         }
-        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, 
+        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer,
             string Lod, List<string> parameters, Dictionary<string, dynamic> ParentInfo)
         {
             List<XYZ> loopVertices = new List<XYZ>();
@@ -207,9 +207,9 @@ namespace cityjsonToRevit
                             continue;
                         }
 
-                        if (parentAtt!=null)
+                        if (parentAtt != null)
                         {
-                            foreach(var patt in parentAtt)
+                            foreach (var patt in parentAtt)
                             {
                                 if (patt.Name == p)
                                     para.Set((string)patt);
@@ -233,7 +233,7 @@ namespace cityjsonToRevit
             }
         }
         private List<Material> matGenerator(Document doc)
-         {
+        {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
 
             IEnumerable<Material> existingMats
@@ -250,7 +250,7 @@ namespace cityjsonToRevit
 
                     Asset asset = doc.Application.GetAssets(AssetType.Appearance).FirstOrDefault(e => e.Name == "Generic");
                     AppearanceAssetElement assetElement = AppearanceAssetElement.Create(doc, "cjAsset", asset);
-                    var materialProperties = new[] 
+                    var materialProperties = new[]
                     {
                         new { name = "cj-Building", color = new Color(119, 136, 153) },
                         new { name = "cj-Bridge", color = new Color(160, 82, 45) },
@@ -298,7 +298,7 @@ namespace cityjsonToRevit
 
         private Material matSelector(Material m, List<Material> materials, string type, Document doc)
         {
-            switch (type) 
+            switch (type)
             {
                 case "Building": m = materials[0]; break;
                 case "BuildingPart": m = materials[0]; break;
@@ -338,7 +338,7 @@ namespace cityjsonToRevit
         private bool checkExist(string filepath, string loadedFiles)
         {
             string[] lfs = loadedFiles.Split(new[] { '$' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach( string lf in lfs)
+            foreach (string lf in lfs)
             {
                 if (lf == filepath)
                     return true;
@@ -346,7 +346,7 @@ namespace cityjsonToRevit
             return false;
         }
 
-        private Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+        private Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX, double transY)
         {
             List<XYZ> vertList = new List<XYZ>();
             double minX = double.MaxValue;
@@ -392,15 +392,15 @@ namespace cityjsonToRevit
             Parameter parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
             String files = string.Empty;
 
-            if (parLoad!=null)
+            if (parLoad != null)
                 files = parLoad.AsString();
 
 
-                var fileContent = string.Empty;
-                string filePath = string.Empty;
-                XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
-                XYZ minPoint = new XYZ();
-                XYZ maxPoint = new XYZ();
+            var fileContent = string.Empty;
+            string filePath = string.Empty;
+            XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
+            XYZ minPoint = new XYZ();
+            XYZ maxPoint = new XYZ();
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
                 openFileDialog.Title = "Open CityJSON file";
@@ -417,95 +417,91 @@ namespace cityjsonToRevit
                         TaskDialog.Show("Loading an existing file", "The file has been loaded before.\n");
                         return Result.Failed;
                     }
-                    List<Material> materials = matGenerator(doc);
 
-                    using (Transaction trans = new Transaction(doc, "Load CityJSON"))
+                    filePath = openFileDialog.FileName;
+
+                    //Read the contents of the file into a stream
+                    var fileStream = openFileDialog.OpenFile();
+
+                    using (StreamReader reader = new StreamReader(fileStream))
                     {
-                        trans.Start();
-                        filePath = openFileDialog.FileName;
+                        string json = reader.ReadToEnd();
+                        dynamic jCity = JsonConvert.DeserializeObject(json);
 
-                        
-                        //Read the contents of the file into a stream
-                        var fileStream = openFileDialog.OpenFile();
-
-                        using (StreamReader reader = new StreamReader(fileStream))
+                        if (!CheckValidity(jCity))
                         {
-                            string json = reader.ReadToEnd();
-                            dynamic jCity = JsonConvert.DeserializeObject(json);
+                            TaskDialog.Show("Error!", "Invalid CityJSON file" +
+                                ".");
+                            return Result.Failed;
+                        }
 
-                            if (!CheckValidity(jCity))
+                        List<XYZ> vertList = new List<XYZ>();
+                        string lodSpec = lodSelecter(jCity);
+
+                        if (lodSpec == "")
+                        {
+                            return Result.Failed;
+                        }
+                        if (lodSpec == "Failed")
+                        {
+                            TaskDialog.Show("Error!", "This version does not support Templating.");
+                            return Result.Failed;
+                        }
+
+                        int epsgNo = epsgNum(jCity);
+                        if (epsgNo == -1)
+                        {
+                            TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
+                            vertList = vertBuilder(jCity, 0, 0).Item1;
+                            minPoint = vertBuilder(jCity, 0, 0).Item2;
+                            maxPoint = vertBuilder(jCity, 0, 0).Item3;
+                        }
+                        else
+                        {
+                            SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
+                            double latDeg = site.Latitude / angleRatio;
+                            double lonDeg = site.Longitude / angleRatio;
+
+                            double[] xy = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                            PointProjector(epsgNo, xy);
+                            double cjLat = xy[1];
+                            double cjLon = xy[0];
+
+                            bool newLocation = false;
+                            if (latDeg != cjLat || lonDeg != cjLon)
                             {
-                                TaskDialog.Show("Error!", "Invalid CityJSON file" +
-                                    ".");
-                                trans.Commit();
-                                return Result.Failed;
+                                //User select to update or choose revit origin
+                                using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
+                                {
+                                    mpv.ShowDialog();
+                                    newLocation = mpv._loc;
+                                }
                             }
-
-                            List<XYZ> vertList = new List<XYZ>();
-                            string lodSpec = lodSelecter(jCity);
-
-                            if (lodSpec == "")
+                            if (newLocation)
                             {
-                                trans.Commit();
-                                return Result.Failed;
-                            }
-                            if (lodSpec == "Failed")
-                            {
-                                TaskDialog.Show("Error!", "This version does not support Templating.");
-                                trans.Commit();
-                                return Result.Failed;
-                            }
-
-                            int epsgNo = epsgNum(jCity);
-                            if (epsgNo == -1)
-                            {
-                                TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
+                                UpdateSiteLocation(doc, jCity);
                                 vertList = vertBuilder(jCity, 0, 0).Item1;
                                 minPoint = vertBuilder(jCity, 0, 0).Item2;
                                 maxPoint = vertBuilder(jCity, 0, 0).Item3;
                             }
                             else
                             {
-                                SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
-                                double latDeg = site.Latitude / angleRatio;
-                                double lonDeg = site.Longitude / angleRatio;
-
-                                double[] xy = { jCity.transform.translate[0], jCity.transform.translate[1] };
-                                PointProjector(epsgNo, xy);
-                                double cjLat = xy[1];
-                                double cjLon = xy[0];
-
-                                bool newLocation = false;
-                                if (latDeg != cjLat || lonDeg != cjLon)
-                                {
-                                    //User select to update or choose revit origin
-                                    using (mapViewer mpv = new mapViewer(latDeg, lonDeg, cjLat, cjLon))
-                                    {
-                                        mpv.ShowDialog();
-                                        newLocation = mpv._loc;
-                                    }
-                                }
-                                if (newLocation)
-                                {
-                                    UpdateSiteLocation(doc, jCity);
-                                    vertList = vertBuilder(jCity, 0, 0).Item1;
-                                    minPoint = vertBuilder(jCity, 0, 0).Item2;
-                                    maxPoint = vertBuilder(jCity, 0, 0).Item3;
-                                }
-                                else
-                                {
-                                    double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
-                                    double[] tranR = { lonDeg, latDeg };
-                                    PointProjectorRev(epsgNo, tranR);
-                                    double tranx = tranC[0] - tranR[0];
-                                    double trany = tranC[1] - tranR[1];
-                                    vertList = vertBuilder(jCity, tranx, trany).Item1;
-                                    minPoint = vertBuilder(jCity, tranx, trany).Item2;
-                                    maxPoint = vertBuilder(jCity, tranx, trany).Item3;
-                                }
+                                double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                                double[] tranR = { lonDeg, latDeg };
+                                PointProjectorRev(epsgNo, tranR);
+                                double tranx = tranC[0] - tranR[0];
+                                double trany = tranC[1] - tranR[1];
+                                vertList = vertBuilder(jCity, tranx, trany).Item1;
+                                minPoint = vertBuilder(jCity, tranx, trany).Item2;
+                                maxPoint = vertBuilder(jCity, tranx, trany).Item3;
                             }
+                        }
 
+                        List<Material> materials = matGenerator(doc);
 
+                        using (Transaction trans = new Transaction(doc, "Load CityJSON"))
+                        {
+                            trans.Start();
 
                             List<string> paramets = paramFinder(jCity);
                             Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
@@ -548,30 +544,31 @@ namespace cityjsonToRevit
                                 }
                             }
 
-                        }
 
-                        FilteredElementCollector collector = new FilteredElementCollector(doc);
-                        View3D view3D = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
-                        if (view3D == null)
-                        {
-                            FilteredElementCollector collector0 = new FilteredElementCollector(doc);
-                            ViewFamilyType viewFamilyType = collector0.OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
-                                                      .FirstOrDefault(y => y.ViewFamily == ViewFamily.ThreeDimensional);
-                            view3D = View3D.CreateIsometric(
-                                                          doc, viewFamilyType.Id);
-                            view3D.Name = "CityJSON 3D";
-                        }
 
-                        files = files + "$" + filePath;
-                        parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
-                        parLoad.Set(files);
-                        trans.Commit();
-                        uidoc.RequestViewChange(view3D);
-                        IList<UIView> views = uidoc.GetOpenUIViews();
-                        foreach (UIView view in views)
-                        {
-                            if (view.ViewId == view3D.Id)
-                                view.ZoomAndCenterRectangle(minPoint, maxPoint);
+                            FilteredElementCollector collector = new FilteredElementCollector(doc);
+                            View3D view3D = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
+                            if (view3D == null)
+                            {
+                                FilteredElementCollector collector0 = new FilteredElementCollector(doc);
+                                ViewFamilyType viewFamilyType = collector0.OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
+                                                          .FirstOrDefault(y => y.ViewFamily == ViewFamily.ThreeDimensional);
+                                view3D = View3D.CreateIsometric(
+                                                              doc, viewFamilyType.Id);
+                                view3D.Name = "CityJSON 3D";
+                            }
+
+                            files = files + "$" + filePath;
+                            parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
+                            parLoad.Set(files);
+                            trans.Commit();
+                            uidoc.RequestViewChange(view3D);
+                            IList<UIView> views = uidoc.GetOpenUIViews();
+                            foreach (UIView view in views)
+                            {
+                                if (view.ViewId == view3D.Id)
+                                    view.ZoomAndCenterRectangle(minPoint, maxPoint);
+                            }
                         }
                     }
                 }
@@ -580,7 +577,7 @@ namespace cityjsonToRevit
             return Result.Succeeded;
         }
 
-        private bool paramMaker(UIApplication uiapp,string param)
+        private bool paramMaker(UIApplication uiapp, string param)
         {
             List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
             var exes = new HashSet<DefinitionGroup>(m_exdef);
@@ -588,7 +585,7 @@ namespace cityjsonToRevit
             if (definitionFile == null)
             {
                 string AddInPath = typeof(ExternalApplication).Assembly.Location;
-                string tempfile = Path.GetDirectoryName(AddInPath)+"\\parameters.txt";
+                string tempfile = Path.GetDirectoryName(AddInPath) + "\\parameters.txt";
                 using (File.OpenWrite(tempfile)) { }
                 uiapp.Application.SharedParametersFilename = tempfile;
                 definitionFile = uiapp.Application.OpenSharedParameterFile();
@@ -596,15 +593,15 @@ namespace cityjsonToRevit
             BindingMap bindingMap = uiapp.ActiveUIDocument.Document.ParameterBindings;
             DefinitionGroups myGroups = definitionFile.Groups;
             DefinitionGroup myGroup = null;
-            
+
             if (myGroups.IsEmpty)
                 myGroup = myGroups.Create("CityJSON");
-            else 
+            else
             {
                 myGroup = myGroups.FirstOrDefault(e => e.Name == "CityJSON");
             }
-            if (myGroup==null)
-            myGroup = myGroups.Create("CityJSON");
+            if (myGroup == null)
+                myGroup = myGroups.Create("CityJSON");
             Definition myDefinition = myGroup.Definitions.FirstOrDefault(e => e.Name == param);
             if (myDefinition == null)
             {
@@ -616,7 +613,7 @@ namespace cityjsonToRevit
             }
             CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
             Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
-            if(param == "loadedFiles")
+            if (param == "loadedFiles")
                 myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_ProjectInformation);
             myCategories.Insert(myCategory);
             InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
@@ -642,11 +639,11 @@ namespace cityjsonToRevit
             {
                 foreach (var objProperties in objects)
                 {
-                    if(objProperties.attributes == null)
+                    if (objProperties.attributes == null)
                     {
                         continue;
                     }
-                    foreach(var attr in objProperties.attributes)
+                    foreach (var attr in objProperties.attributes)
                     {
                         parameters.Add(attr.Name);
                     }
