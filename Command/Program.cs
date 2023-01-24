@@ -360,12 +360,16 @@ namespace cityjsonToRevit
 
         {
             List<XYZ> vertList = new List<XYZ>();
-            double minX = double.MaxValue;
-            double maxX = double.MinValue;
-            double minY = double.MaxValue;
-            double maxY = double.MinValue;
-            double minZ = double.MaxValue;
-            double maxZ = double.MinValue;
+            double intX = (cityJ.vertices[0][0] * cityJ.transform.scale[0]) + transX;
+            double intY = (cityJ.vertices[0][1] * cityJ.transform.scale[0]) + transY;
+            double intZ = (cityJ.vertices[0][2] * cityJ.transform.scale[0]);
+
+            double minX = UnitUtils.ConvertToInternalUnits(intX, UnitTypeId.Meters);
+            double maxX = minX;
+            double minY = UnitUtils.ConvertToInternalUnits(intY, UnitTypeId.Meters);
+            double maxY = minY;
+            double minZ = UnitUtils.ConvertToInternalUnits(intZ, UnitTypeId.Meters);
+            double maxZ = minZ;
             foreach (var vertex in cityJ.vertices)
             {
                 double x = (vertex[0] * cityJ.transform.scale[0]) + transX;
