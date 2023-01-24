@@ -54,6 +54,8 @@ namespace cityjsonToRevit
             this.button2 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+
             this.SuspendLayout();
             // 
             // gMap
@@ -162,6 +164,18 @@ namespace cityjsonToRevit
             this.label3.TabIndex = 7;
             this.label3.Text = "Change existing site location to CityJSON \r\nfile\'s origin and load the CityJSON f" +
     "ile.";
+
+
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(452, 330);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(202, 26);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "Attention: CityJSON files located too far from Revit's origin may cause difficulties with file navigation and graphics.";
             // 
             // mapViewer
             // 
@@ -190,5 +204,7 @@ namespace cityjsonToRevit
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+
     }
 }
