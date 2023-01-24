@@ -175,13 +175,17 @@ namespace cityjsonToRevit
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(202, 26);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Attention: CityJSON files located too far from Revit's origin may cause difficulties with file navigation and graphics.";
+            this.label4.Text = "Attention: CityJSON files located too far \r\n" +
+                               "from Revit's origin may cause difficulties\r\n" +
+                               " with file navigation and graphics.";
+
             // 
             // mapViewer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(670, 445);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.button2);
