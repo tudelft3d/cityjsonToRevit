@@ -472,6 +472,7 @@ namespace cityjsonToRevit
                             double cjLon = xy[0];
 
                             bool newLocation = false;
+                            bool closed = false;
                             if (latDeg != cjLat || lonDeg != cjLon)
                             {
                                 //User select to update or choose revit origin
@@ -479,8 +480,11 @@ namespace cityjsonToRevit
                                 {
                                     mpv.ShowDialog();
                                     newLocation = mpv._loc;
+                                    closed = mpv._cancel;
                                 }
                             }
+                            if(closed)
+                                return Result.Failed;
                             if (newLocation)
                             {
                                 using (Transaction tran = new Transaction(doc, "Update Site Location"))
