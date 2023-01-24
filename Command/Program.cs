@@ -479,10 +479,16 @@ namespace cityjsonToRevit
                             }
                             if (newLocation)
                             {
-                                UpdateSiteLocation(doc, jCity);
-                                vertList = vertBuilder(jCity, 0, 0).Item1;
-                                minPoint = vertBuilder(jCity, 0, 0).Item2;
-                                maxPoint = vertBuilder(jCity, 0, 0).Item3;
+                                using (Transaction tran = new Transaction(doc, "Update Site Location"))
+                                {
+                                    tran.Start();
+                                    UpdateSiteLocation(doc, jCity);
+                                    vertList = vertBuilder(jCity, 0, 0).Item1;
+                                    minPoint = vertBuilder(jCity, 0, 0).Item2;
+                                    maxPoint = vertBuilder(jCity, 0, 0).Item3;
+                                    tran.Commit();
+                                }
+
                             }
                             else
                             {
