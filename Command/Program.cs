@@ -581,6 +581,8 @@ namespace cityjsonToRevit
                             files = files + "$" + filePath;
                             parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
                             parLoad.Set(files);
+                            (view as View3D).IsSectionBoxActive = false;
+                            view.CropBoxActive = false;
                             trans.Commit();
                             IList<UIView> uiviews = uidoc.GetOpenUIViews();
                             foreach (UIView uiview in uiviews)
