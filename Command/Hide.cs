@@ -1,15 +1,8 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Collections;
 
 namespace cityjsonToRevit
 {
@@ -22,8 +15,6 @@ namespace cityjsonToRevit
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
             Autodesk.Revit.DB.View actView = doc.ActiveView;
-
-
             using (Transaction trans = new Transaction(doc, "Hide Unhide CJ"))
             {
                 trans.Start();
@@ -51,7 +42,7 @@ namespace cityjsonToRevit
                     }
                 }
 
-                if (hlist.Count==0 && uhlist.Count == 0)
+                if (hlist.Count == 0 && uhlist.Count == 0)
                 {
                     TaskDialog.Show("Import CityJSON file", "There is no CityJSON geometry loaded.\n");
                     trans.RollBack();
@@ -61,10 +52,10 @@ namespace cityjsonToRevit
                 ICollection<ElementId> uhcol = uhlist;
                 ICollection<ElementId> hcol = hlist;
 
-                if(hcol.Count!= 0)
-                actView.HideElements(hcol);
+                if (hcol.Count != 0)
+                    actView.HideElements(hcol);
                 if (uhcol.Count != 0)
-                actView.UnhideElements(uhcol);
+                    actView.UnhideElements(uhcol);
 
                 trans.Commit();
 
