@@ -19,7 +19,6 @@ namespace cityjsonToRevit
     class Program : IExternalCommand
     {
         const double angleRatio = Math.PI / 180;
-
         public int epsgNum(dynamic cityJ)
         {
             string epsg = unchecked((string)cityJ.metadata.referenceSystem);
@@ -385,6 +384,13 @@ namespace cityjsonToRevit
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
             UIApplication uiapp = commandData.Application;
+            Autodesk.Revit.DB.View view = doc.ActiveView;
+            if (!(view is View3D))
+            {
+                TaskDialog.Show("Report", "Please run the plugin in a 3D view!");
+                return Result.Failed;
+            }
+                
 
             if (doc.IsFamilyDocument)
             {
@@ -483,7 +489,7 @@ namespace cityjsonToRevit
                                     closed = mpv._cancel;
                                 }
                             }
-                            if(closed)
+                            if (closed)
                                 return Result.Failed;
                             if (newLocation)
                             {
@@ -558,31 +564,17 @@ namespace cityjsonToRevit
                                 }
                             }
 
-
-
-                            FilteredElementCollector collector = new FilteredElementCollector(doc);
-                            View3D view3D = collector.OfClass(typeof(View3D)).Cast<View3D>().FirstOrDefault(x => x.Name == "CityJSON 3D");
-                            if (view3D == null)
-                            {
-                                FilteredElementCollector collector0 = new FilteredElementCollector(doc);
-                                ViewFamilyType viewFamilyType = collector0.OfClass(typeof(ViewFamilyType)).Cast<ViewFamilyType>()
-                                                          .FirstOrDefault(y => y.ViewFamily == ViewFamily.ThreeDimensional);
-                                view3D = View3D.CreateIsometric(
-                                                              doc, viewFamilyType.Id);
-                                view3D.Name = "CityJSON 3D";
-                            }
-
                             files = files + "$" + filePath;
                             parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
                             parLoad.Set(files);
                             trans.Commit();
-                            uidoc.RequestViewChange(view3D);
-                            IList<UIView> views = uidoc.GetOpenUIViews();
-                            foreach (UIView view in views)
+                            IList<UIView> uiviews = uidoc.GetOpenUIViews();
+                            foreach (UIView uiview in uiviews)
                             {
-                                if (view.ViewId == view3D.Id)
-                                    view.ZoomAndCenterRectangle(minPoint, maxPoint);
+                                if (uiview.ViewId == view.Id)
+                                    uiview.ZoomAndCenterRectangle(minPoint, maxPoint);
                             }
+
                         }
                     }
                 }
