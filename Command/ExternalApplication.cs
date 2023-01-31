@@ -23,7 +23,7 @@ namespace cityjsonToRevit
 
             PushButtonData button1 = new PushButtonData("Button1", "Import", path, "cityjsonToRevit.Program");
             PushButtonData button2 = new PushButtonData("Button2", "Hide/Unhide", path, "cityjsonToRevit.Hide");
-            PushButtonData button3 = new PushButtonData("Button3", "3D BAG", path, "cityjsonToRevit.3dBag");
+            PushButtonData button3 = new PushButtonData("Button3", "3D BAG", path, "cityjsonToRevit.Bag");
 
             RibbonPanel panel = application.CreateRibbonPanel("3Dgeoinfo", "CityJSON");
 

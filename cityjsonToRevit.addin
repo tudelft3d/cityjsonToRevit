@@ -33,8 +33,8 @@
   <AddIn Type="Command">
     <Name>cityjsonToRevit</Name>
     <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>913DA4BE-C393-4958-B5EE-A0C21BF99D89</AddInId>
-    <FullClassName>cityjsonToRevit.3dBag</FullClassName>
+    <AddInId>BA112B91-1EF5-4428-9478-04CB98CC07D2</AddInId>
+    <FullClassName>cityjsonToRevit.Bag</FullClassName>
     <Text>3DBAG</Text>
     <Description>creates generic model elements from 3dbag server</Description>
     <VendorId>Amir</VendorId>

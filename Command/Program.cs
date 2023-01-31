@@ -18,9 +18,9 @@ namespace cityjsonToRevit
     [Transaction(TransactionMode.Manual)]
     class Program : IExternalCommand
     {
-        const double angleRatio = Math.PI / 180;
+        public static double angleRatio = Math.PI / 180;
        
-        public int epsgNum(dynamic cityJ)
+        public static int epsgNum(dynamic cityJ)
         {
             string epsg = unchecked((string)cityJ.metadata.referenceSystem);
             if(epsg == null)
@@ -46,7 +46,7 @@ namespace cityjsonToRevit
             return;
         }
 
-        public void PointProjectorRev(int number, double[] xy)
+        public static void PointProjectorRev(int number, double[] xy)
         {
             ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(number);
             ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(4326);
@@ -79,7 +79,7 @@ namespace cityjsonToRevit
             return true;
         }
 
-        private string lodSelecter(dynamic cityJ)
+        public static string lodSelecter(dynamic cityJ)
         {
             string level = "";
             List<string> lods = new List<string>();
@@ -119,7 +119,7 @@ namespace cityjsonToRevit
                 return level;
             }
         }
-        private void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, 
+        public static void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, 
             string Lod, List<string> parameters, Dictionary<string, dynamic> ParentInfo)
         {
             List<XYZ> loopVertices = new List<XYZ>();
@@ -233,7 +233,7 @@ namespace cityjsonToRevit
 
             }
         }
-        private List<Material> matGenerator(Document doc)
+        public static List<Material> matGenerator(Document doc)
          {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
 
@@ -327,7 +327,7 @@ namespace cityjsonToRevit
             return mats;
          }
 
-        private Material matSelector(List<Material> materials, string type, Document doc)
+        public static Material matSelector(List<Material> materials, string type, Document doc)
         {
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             Material m
@@ -371,7 +371,7 @@ namespace cityjsonToRevit
         }
 
 
-        private List<XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+        public static List<XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
         {
             List<XYZ> vertList = new List<XYZ>();
             foreach (var vertex in cityJ.vertices)
@@ -539,7 +539,7 @@ namespace cityjsonToRevit
             return Result.Succeeded;
         }
 
-        private bool paramMaker(UIApplication uiapp,string param)
+        public static bool paramMaker(UIApplication uiapp,string param)
         {
             List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
             var exes = new HashSet<DefinitionGroup>(m_exdef);
@@ -591,7 +591,7 @@ namespace cityjsonToRevit
             return instanceBindOK;
         }
 
-        private List<string> paramFinder(dynamic jCity)
+        public static List<string> paramFinder(dynamic jCity)
         {
             List<string> parameters = new List<string>();
 
