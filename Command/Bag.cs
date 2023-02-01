@@ -8,6 +8,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Document = Autodesk.Revit.DB.Document;
+using GMap.NET;
+using GMap.NET.MapProviders;
+using GMap.NET.Projections;
 
 namespace cityjsonToRevit
 {
@@ -23,9 +26,6 @@ namespace cityjsonToRevit
                 // Create an HttpClient and send the request
                 WebClient client = new WebClient();
                 string response = client.DownloadString(url);
-                //https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=261000,525000,262000,527000;
-                // Read the response as a string
-                //string responseString = await response.Content.ReadAsStringAsync();
                 dynamic responseJson = JsonConvert.DeserializeObject(response);
                 foreach (var feature in responseJson.features)
                 {
@@ -52,7 +52,17 @@ namespace cityjsonToRevit
             }
 
 
-            XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
+            SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
+            double latDeg = site.Latitude / Program.angleRatio;
+            double lonDeg = site.Longitude / Program.angleRatio;
+            PointLatLng point = new PointLatLng(latDeg, lonDeg);
+            GeoCoderStatusCode geoCoder = GeoCoderStatusCode.Unknow;
+            Placemark? placemark = GMapProviders.OpenStreetMap.GetPlacemark(point, out geoCoder);
+            if (placemark?.CountryName != "Nederland")
+            {
+                TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands, Please update site location and run the plugin again.");
+                return Result.Failed;
+            }
             List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=261000,525000,262000,527000");
             if (tileNums.Count == 0)
                 return Result.Failed;
@@ -96,9 +106,6 @@ namespace cityjsonToRevit
                         dynamic jCity = JsonConvert.DeserializeObject(json);
                         List<XYZ> vertList = new List<XYZ>();
                         int epsgNo = Program.epsgNum(jCity);
-                        SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
-                        double latDeg = site.Latitude / Program.angleRatio;
-                        double lonDeg = site.Longitude / Program.angleRatio;
                         double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
                         double[] tranR = { lonDeg, latDeg };
                         Program.PointProjectorRev(epsgNo, tranR);
