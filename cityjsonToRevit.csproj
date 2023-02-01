@@ -68,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\Bag.cs" />
+    <Compile Include="Command\BagMap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Command\BagMap.Designer.cs">
+      <DependentUpon>BagMap.cs</DependentUpon>
+    </Compile>
     <Compile Include="Command\Hide.cs" />
     <Compile Include="Command\Program.cs" />
     <Compile Include="Command\ExternalApplication.cs" />
@@ -93,6 +99,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Command\BagMap.resx">
+      <DependentUpon>BagMap.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Command\lodUserSelect.resx">
       <DependentUpon>lodUserSelect.cs</DependentUpon>
     </EmbeddedResource>
