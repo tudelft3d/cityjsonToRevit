@@ -37,7 +37,7 @@ namespace cityjsonToRevit
             return espgNo;
         }
 
-        private void PointProjector(int number, double[] xy)
+        public static void PointProjector(int number, double[] xy)
         {
             ProjectionInfo pStart = ProjectionInfo.FromEpsgCode(number);
             ProjectionInfo pEnd = ProjectionInfo.FromEpsgCode(4326);

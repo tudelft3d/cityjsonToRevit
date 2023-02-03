@@ -50,7 +50,7 @@ namespace cityjsonToRevit
                 TaskDialog.Show("Performing on family document", "The plugin should run on project documents.\n");
                 return Result.Failed;
             }
-
+            
 
             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
             double latDeg = site.Latitude / Program.angleRatio;
@@ -63,6 +63,12 @@ namespace cityjsonToRevit
                 TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands, Please update site location and run the plugin again.");
                 return Result.Failed;
             }
+
+            using (Command.BagMap bm = new Command.BagMap(latDeg, lonDeg))
+            {
+                bm.ShowDialog();
+            }
+
             List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=261000,525000,262000,527000");
             if (tileNums.Count == 0)
                 return Result.Failed;
