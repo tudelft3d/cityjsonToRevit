@@ -63,10 +63,15 @@ namespace cityjsonToRevit
                 TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands, Please update site location and run the plugin again.");
                 return Result.Failed;
             }
-
+            double boxlength = -1;
             using (Command.BagMap bm = new Command.BagMap(latDeg, lonDeg))
             {
                 bm.ShowDialog();
+                boxlength = bm.side;
+            }
+            if (boxlength==-1)
+            {
+                return Result.Failed;
             }
 
             List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=261000,525000,262000,527000");

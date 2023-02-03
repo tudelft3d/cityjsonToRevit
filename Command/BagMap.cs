@@ -14,6 +14,7 @@ namespace cityjsonToRevit.Command
 {
     public partial class BagMap : Form
     {
+        public double side = -1;
         public BagMap(double lat, double lon)
         {
             InitializeComponent(lat, lon);
@@ -52,6 +53,12 @@ namespace cityjsonToRevit.Command
             points.Add(p3);
             points.Add(p4);
             return points;
+        }
+        private void button1_Click(object sender, EventArgs e)
+        {
+            side = sliderMove.Value / 2;
+            this.Close();
+
         }
     }
 }

@@ -42,6 +42,7 @@ namespace cityjsonToRevit.Command
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.gMap = new GMap.NET.WindowsForms.GMapControl();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.sliderMove)).BeginInit();
             this.SuspendLayout();
             // 
@@ -49,8 +50,8 @@ namespace cityjsonToRevit.Command
             // 
             this.sliderMove.Cursor = System.Windows.Forms.Cursors.Default;
             this.sliderMove.LargeChange = 100;
-            this.sliderMove.Location = new System.Drawing.Point(811, 371);
-            this.sliderMove.Maximum = 600;
+            this.sliderMove.Location = new System.Drawing.Point(811, 453);
+            this.sliderMove.Maximum = 700;
             this.sliderMove.Minimum = 100;
             this.sliderMove.Name = "sliderMove";
             this.sliderMove.Size = new System.Drawing.Size(354, 90);
@@ -66,32 +67,33 @@ namespace cityjsonToRevit.Command
             this.value.BackColor = System.Drawing.SystemColors.Menu;
             this.value.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.value.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.value.Location = new System.Drawing.Point(848, 441);
+            this.value.Location = new System.Drawing.Point(842, 536);
             this.value.Multiline = true;
             this.value.Name = "value";
             this.value.Size = new System.Drawing.Size(287, 46);
             this.value.TabIndex = 2;
             this.value.Text = "Side: 300 meters";
+            this.value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // textBox1
             // 
             this.textBox1.BackColor = System.Drawing.SystemColors.Menu;
             this.textBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.875F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox1.Location = new System.Drawing.Point(811, 627);
+            this.textBox1.Location = new System.Drawing.Point(811, 68);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(354, 111);
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "The plugin will generate geometries and attributes of all the buildings within th" +
-    "e specified radius, including those with parts inside the radius.";
+    "e specified boundingbox, including those with parts inside it.";
             // 
             // textBox2
             // 
             this.textBox2.BackColor = System.Drawing.SystemColors.Menu;
             this.textBox2.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.875F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox2.Location = new System.Drawing.Point(811, 327);
+            this.textBox2.Location = new System.Drawing.Point(811, 383);
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(354, 38);
@@ -140,6 +142,17 @@ namespace cityjsonToRevit.Command
             this.gMap.Size = new System.Drawing.Size(779, 942);
             this.gMap.TabIndex = 3;
             // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.SystemColors.Menu;
+            this.button1.Location = new System.Drawing.Point(870, 602);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(231, 46);
+            this.button1.TabIndex = 10;
+            this.button1.Text = "Run";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // BagMap
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
@@ -150,6 +163,7 @@ namespace cityjsonToRevit.Command
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.value);
             this.Controls.Add(this.sliderMove);
+            this.Controls.Add(this.button1);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "BagMap";
@@ -167,5 +181,7 @@ namespace cityjsonToRevit.Command
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.TextBox textBox2;
         private GMap.NET.WindowsForms.GMapControl gMap;
+        private System.Windows.Forms.Button button1;
+
     }
 }
