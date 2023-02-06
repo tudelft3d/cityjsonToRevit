@@ -19,11 +19,9 @@ namespace cityjsonToRevit
     class Program : IExternalCommand
     {
 
-
         public static double angleRatio = Math.PI / 180;
        
         public static int epsgNum(dynamic cityJ)
-
 
         {
             string epsg = unchecked((string)cityJ.metadata.referenceSystem);
@@ -307,6 +305,7 @@ namespace cityjsonToRevit
 
 
         public static Material matSelector(Material m, List<Material> materials, string type, Document doc)
+
 
         {
             switch (type)
