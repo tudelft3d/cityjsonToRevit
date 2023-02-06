@@ -119,15 +119,15 @@ namespace cityjsonToRevit
                     {
                         string json = sr.ReadToEnd();
                         dynamic jCity = JsonConvert.DeserializeObject(json);
-                        List<XYZ> vertList = new List<XYZ>();
                         int epsgNo = Program.epsgNum(jCity);
                         double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
                         double[] tranR = { lonDeg, latDeg };
                         Program.PointProjectorRev(epsgNo, tranR);
                         double tranx = tranC[0] - tranR[0];
                         double trany = tranC[1] - tranR[1];
-                        vertList = Program.vertBuilder(jCity, tranx, trany);
-                        //specific 3d bag lod loader for once
+                        List<XYZ> vertList = Program.vertBuilder(jCity, tranx, trany).Item1;
+                        List<bool> tags = inBB(vertList, boxlength);
+
                         List<string> paramets = Program.paramFinder(jCity);
 
                         Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
@@ -161,16 +161,37 @@ namespace cityjsonToRevit
                         {
                             foreach (var objProperties in objects)
                             {
-                                string attributeName = objects.Name;
-                                string objType = unchecked((string)objProperties.type);
+                                if (tagCheck(objProperties, lodSpec, tags))
+                                {
+                                    string attributeName = objects.Name;
+                                    string objType = unchecked((string)objProperties.type);
+                                    Material mat = Program.matSelector(matDef, materials, objType, doc);
+                                    Program.CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
+                                }
 
-
-                                Material mat = Program.matSelector(matDef, materials, objType, doc);
-                                Program.CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                             }
                         }
                     }
                 }
+                double bminus = boxlength * (-1);
+                XYZ a1 = new XYZ(boxlength, boxlength, 0);
+                XYZ a2 = new XYZ(bminus, boxlength, 0);
+                XYZ a3 = new XYZ(bminus, bminus, 0);
+                XYZ a4 = new XYZ(boxlength, bminus, 0);
+                Line l1 = Line.CreateBound(a1, a2);
+                Line l2 = Line.CreateBound(a2, a3);
+                Line l3 = Line.CreateBound(a3, a4);
+                Line l4 = Line.CreateBound(a4, a1);
+                XYZ origin = new XYZ(0, 0, 0);
+                XYZ normal = new XYZ(0, 0, 1);
+                Plane geomPlane = Plane.CreateByNormalAndOrigin(normal, origin);
+                SketchPlane sketch = SketchPlane.Create(doc, geomPlane);
+                ModelLine line1 = doc.Create.NewModelCurve(l1, sketch) as ModelLine;
+                ModelLine line2 = doc.Create.NewModelCurve(l2, sketch) as ModelLine;
+                ModelLine line3 = doc.Create.NewModelCurve(l3, sketch) as ModelLine;
+                ModelLine line4 = doc.Create.NewModelCurve(l4, sketch) as ModelLine;
+
+
                 tran.Commit();
             }
             return Result.Succeeded;
@@ -197,6 +218,60 @@ namespace cityjsonToRevit
                 level = loder._level;
             }
             return level;
+        }
+        private List<bool> inBB(List<XYZ> vertList, double range)
+        {
+            List<bool> tags = new List<bool>();
+            foreach (XYZ xyz in vertList)
+            {
+                if (Math.Abs(xyz.X) < range && Math.Abs(xyz.Y) < range)
+                    tags.Add(true);
+                else
+                    tags.Add(false);
+            }
+            return tags;
+        }
+        private bool tagCheck(dynamic cityObjProp, string Lod, List<bool> tgs)
+        {
+            if (cityObjProp.geometry == null)
+            {
+                return false;
+            }
+            foreach (var boundaryGroup in cityObjProp.geometry)
+            {
+
+                if (Lod == (string)boundaryGroup.lod)
+                {
+                    foreach (var boundary in boundaryGroup.boundaries)
+                    {
+                        foreach (var facePoints in boundary)
+                        {
+                            //bool levelCheck = false;
+                            foreach (var facePoint in facePoints)
+                            {
+
+                                if (!facePoint.HasValues)
+                                {
+                                    int VV = unchecked((int)facePoint.Value);
+                                    if (tgs[VV])
+                                        return true;
+                                }
+                                else
+                                {
+                                    foreach (var fp in facePoint)
+                                    {
+                                        int VV = unchecked((int)fp.Value);
+                                        if (tgs[VV])
+                                            return true;
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }
