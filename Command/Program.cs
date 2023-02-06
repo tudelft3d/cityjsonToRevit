@@ -358,7 +358,7 @@ namespace cityjsonToRevit
         }
 
 
-        private Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+        public static Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
 
         {
             List<XYZ> vertList = new List<XYZ>();

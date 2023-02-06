@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using Document = Autodesk.Revit.DB.Document;
 
@@ -72,7 +73,7 @@ namespace cityjsonToRevit
             {
                 return Result.Failed;
             }
-            List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox="+ boundingb(latDeg, lonDeg, boxlength));
+            List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=" + boundingb(latDeg, lonDeg, boxlength));
             if (tileNums.Count == 0)
                 return Result.Failed;
             string cjUrl = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_";
@@ -86,9 +87,14 @@ namespace cityjsonToRevit
             using (Transaction tran = new Transaction(doc, "Build 3D BAG Tiles"))
             {
                 tran.Start();
+                FilteredElementCollector matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
+                Material matDef
+                  = matcollector.ToElements().Cast<Material>().FirstOrDefault(e => e.Name == "cj-Default");
+
                 foreach (string tileNum in tileNums)
                 {
                     string cjUrlAll = cjUrl + tileNum + ".json" + ".gz";
+
                     string gzFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\TEMP\\" + tileNum + ".gz";
                     if (!File.Exists(gzFile))
                     {
@@ -159,7 +165,7 @@ namespace cityjsonToRevit
                                 string objType = unchecked((string)objProperties.type);
 
 
-                                Material mat = Program.matSelector(materials, objType, doc);
+                                Material mat = Program.matSelector(matDef, materials, objType, doc);
                                 Program.CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
                             }
                         }
@@ -178,7 +184,7 @@ namespace cityjsonToRevit
             double ymax = xy[1] + a;
             double xmin = xy[0] - a;
             double ymin = xy[1] - a;
-            string box = xmin.ToString() +","+ ymin.ToString() + "," + xmax.ToString() + "," + ymax.ToString();
+            string box = xmin.ToString() + "," + ymin.ToString() + "," + xmax.ToString() + "," + ymax.ToString();
             return box;
         }
         private string lodBagSelecter()
