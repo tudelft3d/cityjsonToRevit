@@ -16,4 +16,3 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\GMap.NET.
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\GMap.NET.WindowsForms.dll
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.mapViewer.resources
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.Command.BagMap.resources
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.Form1.resources

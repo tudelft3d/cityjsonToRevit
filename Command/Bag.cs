@@ -1,6 +1,8 @@
 ﻿using Autodesk.Revit.Attributes;
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
+using GMap.NET;
+using GMap.NET.MapProviders;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -8,9 +10,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 using Document = Autodesk.Revit.DB.Document;
-using GMap.NET;
-using GMap.NET.MapProviders;
-using GMap.NET.Projections;
 
 namespace cityjsonToRevit
 {
@@ -50,7 +49,7 @@ namespace cityjsonToRevit
                 TaskDialog.Show("Performing on family document", "The plugin should run on project documents.\n");
                 return Result.Failed;
             }
-            
+
 
             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
             double latDeg = site.Latitude / Program.angleRatio;
@@ -69,12 +68,11 @@ namespace cityjsonToRevit
                 bm.ShowDialog();
                 boxlength = bm.side;
             }
-            if (boxlength==-1)
+            if (boxlength == -1)
             {
                 return Result.Failed;
             }
-
-            List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox=261000,525000,262000,527000");
+            List<string> tileNums = Tiles("https://data.3dbag.nl/api/BAG3D_v2/wfs?&request=GetFeature&typeName=AG3D_v2:bag_tiles_3k&outputFormat=json&bbox="+ boundingb(latDeg, lonDeg, boxlength));
             if (tileNums.Count == 0)
                 return Result.Failed;
             string cjUrl = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_";
@@ -171,6 +169,17 @@ namespace cityjsonToRevit
             }
             return Result.Succeeded;
 
+        }
+        private string boundingb(double lat, double lon, double a)
+        {
+            double[] xy = { lon, lat };
+            Program.PointProjectorRev(28992, xy);
+            double xmax = xy[0] + a;
+            double ymax = xy[1] + a;
+            double xmin = xy[0] - a;
+            double ymin = xy[1] - a;
+            string box = xmin.ToString() +","+ ymin.ToString() + "," + xmax.ToString() + "," + ymax.ToString();
+            return box;
         }
         private string lodBagSelecter()
         {
