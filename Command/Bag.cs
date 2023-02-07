@@ -77,12 +77,14 @@ namespace cityjsonToRevit
             if (tileNums.Count == 0)
                 return Result.Failed;
             string cjUrl = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_";
-            List<Material> materials = Program.matGenerator(doc);
             string lodSpec = lodBagSelecter();
             if (lodSpec == "")
             {
                 return Result.Failed;
             }
+            List<Material> materials = Program.matGenerator(doc);
+
+            boxlength = UnitUtils.ConvertToInternalUnits(boxlength, UnitTypeId.Meters);
 
             using (Transaction tran = new Transaction(doc, "Build 3D BAG Tiles"))
             {
@@ -190,8 +192,6 @@ namespace cityjsonToRevit
                 ModelLine line2 = doc.Create.NewModelCurve(l2, sketch) as ModelLine;
                 ModelLine line3 = doc.Create.NewModelCurve(l3, sketch) as ModelLine;
                 ModelLine line4 = doc.Create.NewModelCurve(l4, sketch) as ModelLine;
-
-
                 tran.Commit();
             }
             return Result.Succeeded;
