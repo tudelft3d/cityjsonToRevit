@@ -2,12 +2,7 @@
 using GMap.NET.WindowsForms;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace cityjsonToRevit.Command
@@ -22,7 +17,7 @@ namespace cityjsonToRevit.Command
 
         private void sliderMove_ValueChanged(object sender, EventArgs e)
         {
-            value.Text = "Side: " + sliderMove.Value.ToString()+ " meters";
+            value.Text = "Side: " + sliderMove.Value.ToString() + " meters";
             polygons.Polygons.Clear();
             List<PointLatLng> points = Square(gMap.Position.Lat, gMap.Position.Lng);
             GMapPolygon polygon = new GMapPolygon(points, "sqr");

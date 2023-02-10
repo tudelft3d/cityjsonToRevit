@@ -18,9 +18,8 @@ namespace cityjsonToRevit
             using (Transaction trans = new Transaction(doc, "Hide Unhide CJ"))
             {
                 trans.Start();
-                ElementCategoryFilter filter = new ElementCategoryFilter(BuiltInCategory.OST_GenericModel);
                 FilteredElementCollector collector = new FilteredElementCollector(doc);
-                ICollection<ElementId> elemIds = collector.WherePasses(filter).WhereElementIsNotElementType().ToElementIds();
+                ICollection<ElementId> elemIds = collector.OfCategory(BuiltInCategory.OST_GenericModel).WhereElementIsNotElementType().ToElementIds();
                 List<ElementId> hlist = new List<ElementId>();
                 List<ElementId> uhlist = new List<ElementId>();
 

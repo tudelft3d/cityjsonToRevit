@@ -14,11 +14,6 @@ namespace cityjsonToRevit
         }
 
 
-        public bool NewCan(bool loca)
-        {
-            _cancel = loca;
-            return _cancel;
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {

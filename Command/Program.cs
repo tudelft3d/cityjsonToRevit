@@ -241,10 +241,8 @@ namespace cityjsonToRevit
          {
 
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
+            IEnumerable<Element> existingMats = new FilteredElementCollector(doc).OfClass(typeof(Material)).ToElements();
 
-
-            IEnumerable<Material> existingMats
-              = collector.ToElements().Cast<Material>();
             List<Material> mats = new List<Material>();
             if (!existingMats.Any(e => e.Name == "cj-Building"))
             {
@@ -295,9 +293,9 @@ namespace cityjsonToRevit
                 var materialNames = new[] { "cj-Building", "cj-Bridge", "cj-Group", "cj-Furniture", "cj-Landuse", "cj-Plants", "cj-Railway", "cj-Road", "cj-Tunnel", "cj-Water" };
                 foreach (string name in materialNames)
                 {
-                    Material m = existingMats.FirstOrDefault(e => e.Name == name);
+                    Element m = existingMats.FirstOrDefault(e => e.Name == name);
                     if (m != null)
-                        mats.Add(m);
+                        mats.Add(m as Material);
                 }
             }
             return mats;
@@ -548,7 +546,7 @@ namespace cityjsonToRevit
 
                             FilteredElementCollector matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
                             Material matDef
-                              = matcollector.ToElements().Cast<Material>().FirstOrDefault(e => e.Name == "cj-Default");
+                              = matcollector.ToElements().FirstOrDefault(e => e.Name == "cj-Default") as Material;
 
                             foreach (var objects in jCity.CityObjects)
                             {

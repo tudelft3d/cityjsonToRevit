@@ -156,20 +156,28 @@ namespace cityjsonToRevit
 
                             }
                         }
-
+                        ElementCategoryFilter filter = new ElementCategoryFilter(BuiltInCategory.OST_GenericModel);
+                        FilteredElementCollector collector = new FilteredElementCollector(doc);
 
 
                         foreach (var objects in jCity.CityObjects)
                         {
                             foreach (var objProperties in objects)
                             {
+
                                 if (tagCheck(objProperties, lodSpec, tags))
                                 {
-                                    string attributeName = objects.Name;
-                                    string objType = unchecked((string)objProperties.type);
-                                    Material mat = Program.matSelector(matDef, materials, objType, doc);
-                                    Program.CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
+                                    bool exist = collector.OfCategory(BuiltInCategory.OST_GenericModel).WhereElementIsNotElementType().ToElements().Any(e => e.Name == objects.Name + "-lod " + lodSpec);
+
+                                    if (!exist)
+                                    {
+                                        string attributeName = objects.Name;
+                                        string objType = unchecked((string)objProperties.type);
+                                        Material mat = Program.matSelector(matDef, materials, objType, doc);
+                                        Program.CreateTessellatedShape(doc, mat.Id, objProperties, vertList, attributeName, lodSpec, paramets, semanticParentInfo);
+                                    }
                                 }
+                                    
 
                             }
                         }
