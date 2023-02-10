@@ -411,7 +411,7 @@ namespace cityjsonToRevit
 
             ProjectInfo projectInfo = doc.ProjectInformation;
             Parameter parLoad = projectInfo.GetParameters("loadedFiles").FirstOrDefault(e => e.Definition.Name == "loadedFiles");
-            String files = string.Empty;
+            string files = string.Empty;
 
             if (parLoad != null)
                 files = parLoad.AsString();
@@ -433,13 +433,13 @@ namespace cityjsonToRevit
                 //Get the path of specified file
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
+                    filePath = openFileDialog.FileName;
                     if (checkExist(filePath, files))
                     {
                         TaskDialog.Show("Loading an existing file", "The file has been loaded before.\n");
                         return Result.Failed;
                     }
 
-                    filePath = openFileDialog.FileName;
 
                     //Read the contents of the file into a stream
                     var fileStream = openFileDialog.OpenFile();

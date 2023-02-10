@@ -74,6 +74,7 @@ namespace cityjsonToRevit.Command
             this.value.TabIndex = 2;
             this.value.Text = "Side: 300 meters";
             this.value.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.value.ReadOnly = true;
             // 
             // textBox1
             // 
@@ -87,6 +88,8 @@ namespace cityjsonToRevit.Command
             this.textBox1.TabIndex = 2;
             this.textBox1.Text = "The plugin will generate geometries and attributes of all the buildings within th" +
     "e specified boundingbox, including those with parts inside it.";
+            this.textBox1.ReadOnly = true;
+
             // 
             // textBox2
             // 
@@ -100,6 +103,8 @@ namespace cityjsonToRevit.Command
             this.textBox2.TabIndex = 2;
             this.textBox2.Text = "Choose the desired dimension:";
             this.textBox2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textBox2.ReadOnly = true;
+
             // 
             // gMap
             // 

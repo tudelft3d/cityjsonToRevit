@@ -121,6 +121,8 @@ namespace cityjsonToRevit
             this.label1.Size = new System.Drawing.Size(210, 13);
             this.label1.TabIndex = 3;
             this.label1.Text = "Please choose between these two options:";
+            this.label1.Enabled = false;
+
             // 
             // button1
             // 
@@ -153,6 +155,8 @@ namespace cityjsonToRevit
             this.label2.TabIndex = 6;
             this.label2.Text = "Keep existing Revit\'s site location and load \r\nCityJSON file based on the current" +
     " origin.";
+            this.label2.Enabled = false;
+
             // 
             // label3
             // 
@@ -164,6 +168,8 @@ namespace cityjsonToRevit
             this.label3.TabIndex = 7;
             this.label3.Text = "Change existing site location to CityJSON \r\nfile\'s origin and load the CityJSON f" +
     "ile.";
+            this.label3.Enabled = false;
+
 
 
             // 
@@ -178,6 +184,7 @@ namespace cityjsonToRevit
             this.label4.Text = "Attention: CityJSON files located too far \r\n" +
                                "from Revit's origin may cause difficulties\r\n" +
                                " with file navigation and graphics.";
+            this.label4.Enabled = false;
 
             // 
             // mapViewer
