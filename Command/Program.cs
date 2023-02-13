@@ -20,7 +20,7 @@ namespace cityjsonToRevit
     {
 
         public static double angleRatio = Math.PI / 180;
-       
+
         public static int epsgNum(dynamic cityJ)
 
         {
@@ -37,6 +37,7 @@ namespace cityjsonToRevit
             epsg = epsg.Substring(found + 1);
             int espgNo = Int32.Parse(epsg);
             return espgNo;
+
         }
 
         public static void PointProjector(int number, double[] xy)
@@ -70,7 +71,7 @@ namespace cityjsonToRevit
         {
             if (file.CityObjects == null || file.type != "CityJSON" || file.version == null ||
                 file.transform == null || file.transform.scale == null || file.transform.translate == null ||
-                file.vertices == null)
+                file.vertices == null || file.CityObjects.metadata == null)
             {
                 return false;
             }
@@ -122,7 +123,7 @@ namespace cityjsonToRevit
             }
         }
 
-        public static void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer, 
+        public static void CreateTessellatedShape(Autodesk.Revit.DB.Document doc, ElementId materialId, dynamic cityObjProp, List<XYZ> verticesList, string Namer,
 
             string Lod, List<string> parameters, Dictionary<string, dynamic> ParentInfo)
         {
@@ -238,7 +239,7 @@ namespace cityjsonToRevit
         }
 
         public static List<Material> matGenerator(Document doc)
-         {
+        {
 
             FilteredElementCollector collector = new FilteredElementCollector(doc).OfClass(typeof(Material));
             IEnumerable<Element> existingMats = new FilteredElementCollector(doc).OfClass(typeof(Material)).ToElements();
@@ -355,7 +356,7 @@ namespace cityjsonToRevit
         }
 
 
-        public static Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX,double transY)
+        public static Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX, double transY)
 
         {
             List<XYZ> vertList = new List<XYZ>();
@@ -401,7 +402,7 @@ namespace cityjsonToRevit
                 TaskDialog.Show("Report", "Please run the plugin in a 3D view!");
                 return Result.Failed;
             }
-                
+
 
             if (doc.IsFamilyDocument)
             {
@@ -596,7 +597,7 @@ namespace cityjsonToRevit
             return Result.Succeeded;
         }
 
-        public static bool paramMaker(UIApplication uiapp,string param)
+        public static bool paramMaker(UIApplication uiapp, string param)
 
         {
             List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
