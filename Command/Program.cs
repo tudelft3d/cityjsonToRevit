@@ -71,7 +71,7 @@ namespace cityjsonToRevit
         {
             if (file.CityObjects == null || file.type != "CityJSON" || file.version == null ||
                 file.transform == null || file.transform.scale == null || file.transform.translate == null ||
-                file.vertices == null || file.CityObjects.metadata == null)
+                file.vertices == null || file.metadata == null)
             {
                 return false;
             }
