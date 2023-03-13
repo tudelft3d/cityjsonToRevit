@@ -50,5 +50,5 @@ After a successful loading of the file, users may alter the assigned materials b
 
 Following you can watch the youtube video for importing a CityJSON file of a 3D BAG model:
 
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/WjDxKxvNdto/0.jpg)](https://www.youtube.com/watch?v=YWjDxKxvNdto)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/WjDxKxvNdto/0.jpg)](https://www.youtube.com/watch?v=WjDxKxvNdto&t=1s)
 
