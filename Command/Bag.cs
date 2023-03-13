@@ -131,13 +131,8 @@ namespace cityjsonToRevit
                         List<bool> tags = inBB(vertList, boxlength);
 
                         List<string> paramets = Program.paramFinder(jCity);
-
+                        Program.paramMaker(uiapp, Program.paramFinder(jCity));
                         Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
-
-                        foreach (string p in paramets)
-                        {
-                            Program.paramMaker(uiapp, p);
-                        }
 
 
                         foreach (var objects in jCity.CityObjects)

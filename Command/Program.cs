@@ -534,17 +534,9 @@ namespace cityjsonToRevit
                         using (Transaction trans = new Transaction(doc, "Load CityJSON"))
                         {
                             trans.Start();
-
-                            List<string> paramets = paramFinder(jCity);
+                            List<string> paramets = Program.paramFinder(jCity);
+                            paramMaker(uiapp, paramFinder(jCity));
                             Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
-                            foreach (string p in paramets)
-                            {
-                                paramMaker(uiapp, p);
-                            }
-
-
-
-
                             FilteredElementCollector matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
                             Material matDef
                               = matcollector.ToElements().FirstOrDefault(e => e.Name == "cj-Default") as Material;
@@ -597,13 +589,19 @@ namespace cityjsonToRevit
             return Result.Succeeded;
         }
 
-        public static bool paramMaker(UIApplication uiapp, string param)
+        public static void paramMaker(UIApplication uiapp, List<string> parameters)
 
         {
             List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
             var exes = new HashSet<DefinitionGroup>(m_exdef);
             DefinitionFile definitionFile = uiapp.Application.OpenSharedParameterFile();
-            if (definitionFile == null)
+            string sph = uiapp.Application.SharedParametersFilename;
+            FileInfo fi = new FileInfo(sph);
+            bool comeback = false;
+            if (definitionFile != null && fi.IsReadOnly)
+                comeback = true;
+
+            if (definitionFile == null|| fi.IsReadOnly)
             {
                 string AddInPath = typeof(ExternalApplication).Assembly.Location;
                 string tempfile = Path.GetDirectoryName(AddInPath) + "\\parameters.txt";
@@ -623,33 +621,39 @@ namespace cityjsonToRevit
             }
             if (myGroup == null)
                 myGroup = myGroups.Create("CityJSON");
-            Definition myDefinition = myGroup.Definitions.FirstOrDefault(e => e.Name == param);
-            if (myDefinition == null)
+            foreach (string param in parameters)
             {
-                ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, SpecTypeId.String.Text);
-                option.UserModifiable = false;
-                option.HideWhenNoValue = true;
-                option.Description = "CityJSON loaded attributes";
-                myDefinition = myGroup.Definitions.Create(option);
+                Definition myDefinition = myGroup.Definitions.FirstOrDefault(e => e.Name == param);
+                if (myDefinition == null)
+                {
+                    ExternalDefinitionCreationOptions option = new ExternalDefinitionCreationOptions(param, SpecTypeId.String.Text);
+                    option.UserModifiable = false;
+                    option.HideWhenNoValue = true;
+                    option.Description = "CityJSON loaded attributes";
+                    myDefinition = myGroup.Definitions.Create(option);
+                }
+                CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
+                Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
+                if (param == "loadedFiles")
+                    myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_ProjectInformation);
+                myCategories.Insert(myCategory);
+                InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
+                bool instanceBindOK = bindingMap.Insert(myDefinition,
+                                                    instanceBinding, BuiltInParameterGroup.PG_DATA);
+                BindingMap map = uiapp.ActiveUIDocument.Document.ParameterBindings;
+                DefinitionBindingMapIterator it = map.ForwardIterator();
+                it.Reset();
+                while (it.MoveNext())
+                {
+                    InternalDefinition def = it.Key as InternalDefinition;
+                    if (def.Name == param)
+                        def.SetAllowVaryBetweenGroups(uiapp.ActiveUIDocument.Document, true);
+                }
             }
-            CategorySet myCategories = uiapp.Application.Create.NewCategorySet();
-            Category myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_GenericModel);
-            if (param == "loadedFiles")
-                myCategory = Category.GetCategory(uiapp.ActiveUIDocument.Document, BuiltInCategory.OST_ProjectInformation);
-            myCategories.Insert(myCategory);
-            InstanceBinding instanceBinding = uiapp.Application.Create.NewInstanceBinding(myCategories);
-            bool instanceBindOK = bindingMap.Insert(myDefinition,
-                                                instanceBinding, BuiltInParameterGroup.PG_DATA);
-            BindingMap map = uiapp.ActiveUIDocument.Document.ParameterBindings;
-            DefinitionBindingMapIterator it = map.ForwardIterator();
-            it.Reset();
-            while (it.MoveNext())
-            {
-                InternalDefinition def = it.Key as InternalDefinition;
-                if (def.Name == param)
-                    def.SetAllowVaryBetweenGroups(uiapp.ActiveUIDocument.Document, true);
-            }
-            return instanceBindOK;
+            if (comeback)
+                uiapp.Application.SharedParametersFilename = sph;
+
+            return;
         }
 
         public static List<string> paramFinder(dynamic jCity)
