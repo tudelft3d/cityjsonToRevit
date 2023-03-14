@@ -393,10 +393,14 @@ namespace cityjsonToRevit
         }
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {
+
             UIDocument uidoc = commandData.Application.ActiveUIDocument;
             Document doc = uidoc.Document;
             UIApplication uiapp = commandData.Application;
             Autodesk.Revit.DB.View view = doc.ActiveView;
+            bool updatesp = false;
+            bool updatepp = false;
+
             if (!(view is View3D))
             {
                 TaskDialog.Show("Report", "Please run the plugin in a 3D view!");
@@ -417,7 +421,8 @@ namespace cityjsonToRevit
             if (parLoad != null)
                 files = parLoad.AsString();
 
-
+            double tranx = 0;
+            double trany = 0;
             var fileContent = string.Empty;
             string filePath = string.Empty;
             XYZ BaseP = BasePoint.GetProjectBasePoint(doc).Position;
@@ -490,6 +495,7 @@ namespace cityjsonToRevit
                             double cjLon = xy[0];
 
                             bool newLocation = false;
+
                             bool closed = false;
                             if (latDeg != cjLat || lonDeg != cjLon)
                             {
@@ -503,8 +509,20 @@ namespace cityjsonToRevit
                             }
                             if (closed)
                                 return Result.Failed;
+                            double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                            double[] tranR = { lonDeg, latDeg };
+                            PointProjectorRev(epsgNo, tranR);
+                            tranx = tranC[0] - tranR[0];
+                            trany = tranC[1] - tranR[1];
                             if (newLocation)
                             {
+                                using (Command.BasePoints basep = new Command.BasePoints())
+                                {
+                                    basep.ShowDialog();
+                                    updatesp = basep._sp;
+                                    updatepp = basep._pp;
+
+                                }
                                 using (Transaction tran = new Transaction(doc, "Update Site Location"))
                                 {
                                     tran.Start();
@@ -518,11 +536,7 @@ namespace cityjsonToRevit
                             }
                             else
                             {
-                                double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
-                                double[] tranR = { lonDeg, latDeg };
-                                PointProjectorRev(epsgNo, tranR);
-                                double tranx = tranC[0] - tranR[0];
-                                double trany = tranC[1] - tranR[1];
+
                                 vertList = vertBuilder(jCity, tranx, trany).Item1;
                                 minPoint = vertBuilder(jCity, tranx, trany).Item2;
                                 maxPoint = vertBuilder(jCity, tranx, trany).Item3;
@@ -573,6 +587,22 @@ namespace cityjsonToRevit
                             parLoad.Set(files);
                             (view as View3D).IsSectionBoxActive = false;
                             view.CropBoxActive = false;
+
+                            double valuex = UnitUtils.ConvertToInternalUnits((-1 * tranx), UnitTypeId.Meters);
+                            double valuey = UnitUtils.ConvertToInternalUnits((-1 * trany), UnitTypeId.Meters);
+                            if(updatesp)
+                            {
+                                BasePoint sp = BasePoint.GetSurveyPoint(doc);
+                                Location lc = sp.Location;
+                                lc.Move(new XYZ(valuex, valuey, 0));
+                            }
+                            if (updatepp)
+                            {
+                                BasePoint pp = BasePoint.GetProjectBasePoint(doc);
+                                Location lc = pp.Location;
+                                lc.Move(new XYZ(valuex, valuey, 0));
+                            }
+
                             trans.Commit();
                             IList<UIView> uiviews = uidoc.GetOpenUIViews();
                             foreach (UIView uiview in uiviews)
@@ -601,7 +631,7 @@ namespace cityjsonToRevit
             if (definitionFile != null && fi.IsReadOnly)
                 comeback = true;
 
-            if (definitionFile == null|| fi.IsReadOnly)
+            if (definitionFile == null || fi.IsReadOnly)
             {
                 string AddInPath = typeof(ExternalApplication).Assembly.Location;
                 string tempfile = Path.GetDirectoryName(AddInPath) + "\\parameters.txt";
