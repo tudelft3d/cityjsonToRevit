@@ -49,11 +49,12 @@ namespace cityjsonToRevit.Command
             this.textBox1.TabIndex = 0;
             this.textBox1.Text = "Internal Revit origin will be updated.\r\nChoose base points to preserve their loca" +
     "tion. (You can check each, both or none.)";
+            this.textBox1.WordWrap = false;
             // 
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(38, 154);
+            this.checkBox1.Location = new System.Drawing.Point(38, 182);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.Size = new System.Drawing.Size(166, 29);
             this.checkBox1.TabIndex = 1;
@@ -63,7 +64,7 @@ namespace cityjsonToRevit.Command
             // checkBox2
             // 
             this.checkBox2.AutoSize = true;
-            this.checkBox2.Location = new System.Drawing.Point(353, 154);
+            this.checkBox2.Location = new System.Drawing.Point(359, 182);
             this.checkBox2.Name = "checkBox2";
             this.checkBox2.Size = new System.Drawing.Size(221, 29);
             this.checkBox2.TabIndex = 2;
@@ -72,7 +73,7 @@ namespace cityjsonToRevit.Command
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(731, 145);
+            this.button1.Location = new System.Drawing.Point(729, 173);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(188, 45);
             this.button1.TabIndex = 3;
@@ -82,9 +83,9 @@ namespace cityjsonToRevit.Command
             // 
             // BasePoints
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(962, 230);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
+            this.ClientSize = new System.Drawing.Size(962, 250);
+            this.ControlBox = false;
             this.Controls.Add(this.button1);
             this.Controls.Add(this.checkBox2);
             this.Controls.Add(this.checkBox1);
@@ -94,6 +95,7 @@ namespace cityjsonToRevit.Command
             this.MinimizeBox = false;
             this.Name = "BasePoints";
             this.ShowIcon = false;
+            this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.Text = "Manage Base Points";
             this.ResumeLayout(false);
             this.PerformLayout();

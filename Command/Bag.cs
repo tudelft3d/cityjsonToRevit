@@ -60,7 +60,7 @@ namespace cityjsonToRevit
             Placemark? placemark = GMapProviders.OpenStreetMap.GetPlacemark(point, out geoCoder);
             if (placemark?.CountryName != "Nederland")
             {
-                TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands, Please update site location and run the plugin again.");
+                TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands. Please update site location and run the plugin again.");
                 return Result.Failed;
             }
             double boxlength = -1;
