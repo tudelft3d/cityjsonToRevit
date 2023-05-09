@@ -548,7 +548,7 @@ namespace cityjsonToRevit
                         using (Transaction trans = new Transaction(doc, "Load CityJSON"))
                         {
                             trans.Start();
-                            List<string> paramets = Program.paramFinder(jCity);
+                            List<string> paramets = paramFinder(jCity);
                             paramMaker(uiapp, paramFinder(jCity));
                             Dictionary<string, dynamic> semanticParentInfo = new Dictionary<string, dynamic>();
                             FilteredElementCollector matcollector = new FilteredElementCollector(doc).OfClass(typeof(Material));
@@ -624,21 +624,26 @@ namespace cityjsonToRevit
         {
             List<DefinitionGroup> m_exdef = new List<DefinitionGroup>();
             var exes = new HashSet<DefinitionGroup>(m_exdef);
-            DefinitionFile definitionFile = uiapp.Application.OpenSharedParameterFile();
+            //DefinitionFile definitionFile = uiapp.Application.OpenSharedParameterFile();
             string sph = uiapp.Application.SharedParametersFilename;
-            FileInfo fi = new FileInfo(sph);
-            bool comeback = false;
-            if (definitionFile != null && fi.IsReadOnly)
-                comeback = true;
+            //FileInfo fi = new FileInfo(sph);
+            //FileAttributes fatt = File.GetAttributes(sph);
+            //if ((fatt & FileAttributes.Encrypted) == FileAttributes.Encrypted)
+            //{
+            //    //Encrypted
+            //}
+            //bool comeback = false;
+            //if (definitionFile != null && fi.IsReadOnly)
+            //    comeback = true;
 
-            if (definitionFile == null || fi.IsReadOnly)
-            {
+            //if (definitionFile == null || fi.IsReadOnly)
+            //{
                 string AddInPath = typeof(ExternalApplication).Assembly.Location;
                 string tempfile = Path.GetDirectoryName(AddInPath) + "\\parameters.txt";
                 using (File.OpenWrite(tempfile)) { }
                 uiapp.Application.SharedParametersFilename = tempfile;
-                definitionFile = uiapp.Application.OpenSharedParameterFile();
-            }
+            DefinitionFile definitionFile = uiapp.Application.OpenSharedParameterFile();
+            //}
             BindingMap bindingMap = uiapp.ActiveUIDocument.Document.ParameterBindings;
             DefinitionGroups myGroups = definitionFile.Groups;
             DefinitionGroup myGroup = null;
@@ -680,7 +685,7 @@ namespace cityjsonToRevit
                         def.SetAllowVaryBetweenGroups(uiapp.ActiveUIDocument.Document, true);
                 }
             }
-            if (comeback)
+            //if (comeback)
                 uiapp.Application.SharedParametersFilename = sph;
 
             return;
