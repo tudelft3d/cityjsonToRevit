@@ -602,7 +602,9 @@ namespace cityjsonToRevit
                                 Location lc = pp.Location;
                                 lc.Move(new XYZ(valuex, valuey, 0));
                             }
-
+                            SiteLocation site0 = doc.ActiveProjectLocation.GetSiteLocation();
+                            string coordSystem = "EPSG:" + epsgNum(jCity).ToString();
+                            //site0.SetGeoCoordinateSystem(coordSystem);
                             trans.Commit();
                             IList<UIView> uiviews = uidoc.GetOpenUIViews();
                             foreach (UIView uiview in uiviews)
@@ -612,10 +614,11 @@ namespace cityjsonToRevit
                             }
 
                         }
+
+
                     }
                 }
             }
-
             return Result.Succeeded;
         }
 
