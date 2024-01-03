@@ -259,15 +259,15 @@ namespace cityjsonToRevit
                     var materialProperties = new[]
                     {
                         new { name = "cj-Building", color = new Color(119, 136, 153) },
-                        new { name = "cj-Bridge", color = new Color(160, 82, 45) },
-                        new { name = "cj-Group", color = new Color(250, 128, 114) },
-                        new { name = "cj-Furniture", color = new Color(255, 69, 0) },
-                        new { name = "cj-Landuse", color = new Color(218, 165, 32) },
-                        new { name = "cj-Plants", color = new Color(0, 204, 0) },
-                        new { name = "cj-Railway", color = new Color(20, 20, 20) },
-                        new { name = "cj-Road", color = new Color(64, 64, 64) },
-                        new { name = "cj-Tunnel", color = new Color(51, 25, 0) },
-                        new { name = "cj-Water", color = new Color(0, 128, 255) }
+                        //new { name = "cj-Bridge", color = new Color(160, 82, 45) },
+                        //new { name = "cj-Group", color = new Color(250, 128, 114) },
+                        //new { name = "cj-Furniture", color = new Color(255, 69, 0) },
+                        //new { name = "cj-Landuse", color = new Color(218, 165, 32) },
+                        //new { name = "cj-Plants", color = new Color(0, 204, 0) },
+                        //new { name = "cj-Railway", color = new Color(20, 20, 20) },
+                        //new { name = "cj-Road", color = new Color(64, 64, 64) },
+                        //new { name = "cj-Tunnel", color = new Color(51, 25, 0) },
+                        //new { name = "cj-Water", color = new Color(0, 128, 255) }
                     };
                     foreach (var materialProp in materialProperties)
                     {
@@ -291,7 +291,9 @@ namespace cityjsonToRevit
             }
             else
             {
-                var materialNames = new[] { "cj-Building", "cj-Bridge", "cj-Group", "cj-Furniture", "cj-Landuse", "cj-Plants", "cj-Railway", "cj-Road", "cj-Tunnel", "cj-Water" };
+                var materialNames = new[] { "cj-Building"};
+
+                //var materialNames = new[] { "cj-Building", "cj-Bridge", "cj-Group", "cj-Furniture", "cj-Landuse", "cj-Plants", "cj-Railway", "cj-Road", "cj-Tunnel", "cj-Water" };
                 foreach (string name in materialNames)
                 {
                     Element m = existingMats.FirstOrDefault(e => e.Name == name);
@@ -317,28 +319,28 @@ namespace cityjsonToRevit
                 case "BuildingStorey": m = materials[0]; break;
                 case "BuildingRoom": m = materials[0]; break;
                 case "BuildingUnit": m = materials[0]; break;
-                case "Bridge": m = materials[1]; break;
-                case "BridgePart": m = materials[1]; break;
-                case "BridgeInstallation": m = materials[1]; break;
-                case "BridgeConstructiveElement": m = materials[1]; break;
-                case "BridgeRoom": m = materials[1]; break;
-                case "BridgeFurniture": m = materials[1]; break;
-                case "CityObjectGroup": m = materials[2]; break;
-                case "CityFurniture": m = materials[3]; break;
-                case "LandUse": m = materials[4]; break;
-                case "PlantCover": m = materials[5]; break;
-                case "SolitaryVegetationObject": m = materials[5]; break;
-                case "Railway": m = materials[6]; break;
-                case "Road": m = materials[7]; break;
-                case "TransportSquare": m = materials[7]; break;
-                case "Waterway": m = materials[9]; break;
-                case "Tunnel": m = materials[8]; break;
-                case "TunnelPart": m = materials[8]; break;
-                case "TunnelInstallation": m = materials[8]; break;
-                case "TunnelConstructiveElement": m = materials[8]; break;
-                case "TunnelHollowSpace": m = materials[8]; break;
-                case "TunnelFurniture": m = materials[8]; break;
-                case "WaterBody": m = materials[9]; break;
+                //case "Bridge": m = materials[1]; break;
+                //case "BridgePart": m = materials[1]; break;
+                //case "BridgeInstallation": m = materials[1]; break;
+                //case "BridgeConstructiveElement": m = materials[1]; break;
+                //case "BridgeRoom": m = materials[1]; break;
+                //case "BridgeFurniture": m = materials[1]; break;
+                //case "CityObjectGroup": m = materials[2]; break;
+                //case "CityFurniture": m = materials[3]; break;
+                //case "LandUse": m = materials[4]; break;
+                //case "PlantCover": m = materials[5]; break;
+                //case "SolitaryVegetationObject": m = materials[5]; break;
+                //case "Railway": m = materials[6]; break;
+                //case "Road": m = materials[7]; break;
+                //case "TransportSquare": m = materials[7]; break;
+                //case "Waterway": m = materials[9]; break;
+                //case "Tunnel": m = materials[8]; break;
+                //case "TunnelPart": m = materials[8]; break;
+                //case "TunnelInstallation": m = materials[8]; break;
+                //case "TunnelConstructiveElement": m = materials[8]; break;
+                //case "TunnelHollowSpace": m = materials[8]; break;
+                //case "TunnelFurniture": m = materials[8]; break;
+                //case "WaterBody": m = materials[9]; break;
                 default: break;
             }
             return m;
