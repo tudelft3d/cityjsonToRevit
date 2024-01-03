@@ -7,8 +7,8 @@
     <ProjectGuid>{4188FF10-1AB8-41CD-8220-27303AA6BE77}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>cityjsonToRevit</RootNamespace>
-    <AssemblyName>cityjsonToRevit</AssemblyName>
+    <RootNamespace>Bag2Rvt</RootNamespace>
+    <AssemblyName>Bag2Rvt</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -31,7 +31,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationManifest>cityjsonToRevit.addin</ApplicationManifest>
+    <ApplicationManifest>Bag2Rvt.addin</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="DotSpatial.Projections, Version=4.0.656.0, Culture=neutral, processorArchitecture=MSIL">
@@ -99,7 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="3dbag_v210908_fd2cee53_3007.json" />
-    <None Include="cityjsonToRevit.addin">
+    <None Include="Bag2Rvt.addin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

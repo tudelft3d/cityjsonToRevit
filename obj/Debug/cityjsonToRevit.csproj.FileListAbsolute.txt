@@ -1,10 +1,5 @@
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.dll
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.pdb
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.AssemblyReference.cache
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CoreCompileInputs.cache
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.dll
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.pdb
-C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\cityjsonToRevit.addin
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.dll
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Newtonsoft.Json.xml
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.csproj.CopyComplete
@@ -17,3 +12,8 @@ C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\GMap.NET.
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.mapViewer.resources
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.Command.BagMap.resources
 C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\cityjsonToRevit.Command.BasePoints.resources
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Bag2Rvt.addin
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Bag2Rvt.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\bin\Debug\Bag2Rvt.pdb
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\Bag2Rvt.dll
+C:\Users\shakim\source\repos\cityjsonToRevit\cityjsonToRevit\obj\Debug\Bag2Rvt.pdb

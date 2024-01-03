@@ -2,8 +2,8 @@
 <RevitAddIns>
   <AddIn Type="Command">
     <Name>cityjsonToRevit</Name>
-    <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>FCC9ECBA-D820-4BB2-99C0-A8CF3F07EBF8</AddInId>
+    <Assembly>Bag2Rvt.dll</Assembly>
+    <AddInId>87CC1F05-BF72-49AA-9F69-1F6E4AB1B362</AddInId>
     <FullClassName>cityjsonToRevit.Program</FullClassName>
     <Text>DbRunner</Text>
     <Description>Opens database file</Description>
@@ -13,16 +13,16 @@
   </AddIn>
   <AddIn Type="Application">
     <Name>ApplicationPlugin</Name>
-    <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>808737A5-0E43-4501-8C08-32441817C580</AddInId>
+    <Assembly>Bag2Rvt.dll</Assembly>
+    <AddInId>49E727E8-3376-4EA9-9C5F-99C53C83A244</AddInId>
     <FullClassName>cityjsonToRevit.ExternalApplication</FullClassName>
     <VendorId>Amir</VendorId>
     <VendorDescription>TUD</VendorDescription>
   </AddIn>
   <AddIn Type="Command">
     <Name>cityjsonToRevit</Name>
-    <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>ED8E8E87-7EAF-4A81-B839-9799679E4D73</AddInId>
+    <Assembly>Bag2Rvt.dll</Assembly>
+    <AddInId>33152112-F6B2-4A6A-AAC9-FF5D941EABDC</AddInId>
     <FullClassName>cityjsonToRevit.Hide</FullClassName>
     <Text>HideIt</Text>
     <Description>HideUnhide created elements</Description>
@@ -32,8 +32,8 @@
   </AddIn>
   <AddIn Type="Command">
     <Name>cityjsonToRevit</Name>
-    <Assembly>cityjsonToRevit.dll</Assembly>
-    <AddInId>BA112B91-1EF5-4428-9478-04CB98CC07D2</AddInId>
+    <Assembly>Bag2Rvt.dll</Assembly>
+    <AddInId>81F6D9FE-0CD2-41BF-AC1D-ADA4B83F1757</AddInId>
     <FullClassName>cityjsonToRevit.Bag</FullClassName>
     <Text>3DBAG</Text>
     <Description>creates generic model elements from 3dbag server</Description>

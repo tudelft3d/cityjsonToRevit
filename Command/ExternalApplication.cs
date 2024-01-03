@@ -17,15 +17,16 @@ namespace cityjsonToRevit
         public Result OnStartup(UIControlledApplication application)
         {
             //create Ribbon Tab
-            application.CreateRibbonTab("3Dgeoinfo");
+            application.CreateRibbonTab("3D BAG");
             string path = Assembly.GetExecutingAssembly().Location;
 
 
-            PushButtonData button1 = new PushButtonData("Button1", "Import", path, "cityjsonToRevit.Program");
+            //PushButtonData button1 = new PushButtonData("Button1", "Import", path, "cityjsonToRevit.Program");
+            PushButtonData button3 = new PushButtonData("Button3", "Create", path, "cityjsonToRevit.Bag");
             PushButtonData button2 = new PushButtonData("Button2", "Hide/Unhide", path, "cityjsonToRevit.Hide");
-            PushButtonData button3 = new PushButtonData("Button3", "3D BAG", path, "cityjsonToRevit.Bag");
 
-            RibbonPanel panel = application.CreateRibbonPanel("3Dgeoinfo", "CityJSON");
+
+            RibbonPanel panel = application.CreateRibbonPanel("3D BAG", "3D BAG");
 
 
             // ExternalCommands assembly path
@@ -42,19 +43,21 @@ namespace cityjsonToRevit
             Uri imagepath3 = new Uri(Path.Combine(ButtonIconsFolder, "images/3dgeo.png"), UriKind.Absolute);
             BitmapImage image3 = new BitmapImage(imagepath3);
 
-            PushButton pushButton1 = panel.AddItem(button1) as PushButton;
-            pushButton1.LargeImage = image1;
-
-            PushButton pushButton2 = panel.AddItem(button2) as PushButton;
-            pushButton2.LargeImage = image2;
+            //PushButton pushButton1 = panel.AddItem(button1) as PushButton;
+            //pushButton1.LargeImage = image1;
 
             PushButton pushButton3 = panel.AddItem(button3) as PushButton;
             pushButton3.LargeImage = image3;
 
-            pushButton1.ToolTip = "Import geometries and attributes from a CityJSON file";
-            pushButton1.LongDescription = "Specify the CityJSON file that you want to import. Choose whether to keep or update Revit Origin. In the event that there are multiple LODs, identify the level you desire to be generated.";
+            PushButton pushButton2 = panel.AddItem(button2) as PushButton;
+            pushButton2.LargeImage = image2;
+
+
+
+            //pushButton1.ToolTip = "Import geometries and attributes from a CityJSON file";
+            //pushButton1.LongDescription = "Specify the CityJSON file that you want to import. Choose whether to keep or update Revit Origin. In the event that there are multiple LODs, identify the level you desire to be generated.";
             ContextualHelp contextHelp = new ContextualHelp(ContextualHelpType.Url, "https://apps.autodesk.com/RVT/en/Detail/HelpDoc?appId=7787623024858844510&appLang=en&os=Win64&mode=preview");
-            pushButton1.SetContextualHelp(contextHelp);
+            //pushButton1.SetContextualHelp(contextHelp);
 
             pushButton2.ToolTip = "Hide/Unhide imported elements in the active view";
             pushButton2.SetContextualHelp(contextHelp);
