@@ -30,15 +30,15 @@ namespace cityjsonToRevit.Command
             double a = sliderMove.Value / 2;
             List<PointLatLng> points = new List<PointLatLng>();
             double[] xy = { lon, lat };
-            Program.PointProjectorRev(28992, xy);
+            Program.PointProjectorRev(7415, xy);
             double xmax = xy[0] + a;
             double ymax = xy[1] + a;
             double xmin = xy[0] - a;
             double ymin = xy[1] - a;
             double[] max = { xmax, ymax };
-            Program.PointProjector(28992, max);
+            Program.PointProjector(7415, max);
             double[] min = { xmin, ymin };
-            Program.PointProjector(28992, min);
+            Program.PointProjector(7415, min);
             PointLatLng p1 = new PointLatLng(max[1], max[0]);
             PointLatLng p2 = new PointLatLng(min[1], max[0]);
             PointLatLng p3 = new PointLatLng(min[1], min[0]);
