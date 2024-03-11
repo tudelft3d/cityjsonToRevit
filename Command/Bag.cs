@@ -97,14 +97,14 @@ namespace cityjsonToRevit
                 {
                     string cjName = tileUrl.Substring(tileUrl.LastIndexOf('/') + 1);
 
-                    string gzFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\TEMP\\" + cjName + ".gz";
+                    string gzFile = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\TEMP\\" + cjName;
                     if (!File.Exists(gzFile))
                     {
                         try
                         {
                             using (var client2 = new WebClient())
                             {
-                                string tUrl = tileUrl + ".gz"; 
+                                string tUrl = tileUrl; 
                                 client2.DownloadFile(tUrl, gzFile);
                             }
                         }
@@ -123,12 +123,13 @@ namespace cityjsonToRevit
                         string json = sr.ReadToEnd();
                         dynamic jCity = JsonConvert.DeserializeObject(json);
                         int epsgNo = Program.epsgNum(jCity);
-                        double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                        double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1], jCity.transform.translate[2] };
                         double[] tranR = { lonDeg, latDeg };
                         Program.PointProjectorRev(epsgNo, tranR);
                         double tranx = tranC[0] - tranR[0];
                         double trany = tranC[1] - tranR[1];
-                        List<XYZ> vertList = Program.vertBuilder(jCity, tranx, trany).Item1;
+                        double tranz = tranC[2];
+                        List<XYZ> vertList = Program.vertBuilder(jCity, tranx, trany, tranz).Item1;
                         List<bool> tags = inBB(vertList, boxlength);
 
                         List<string> paramets = Program.paramFinder(jCity);
