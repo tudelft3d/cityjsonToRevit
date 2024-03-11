@@ -34,8 +34,8 @@ namespace cityjsonToRevit
             // Button icons directory
             string ButtonIconsFolder = Path.GetDirectoryName(AddInPath);
             //Add image
-            Uri imagepath1 = new Uri(Path.Combine(ButtonIconsFolder, "images/import.png"), UriKind.Absolute);
-            BitmapImage image1 = new BitmapImage(imagepath1);
+            //Uri imagepath1 = new Uri(Path.Combine(ButtonIconsFolder, "images/import.png"), UriKind.Absolute);
+            //BitmapImage image1 = new BitmapImage(imagepath1);
 
             Uri imagepath2 = new Uri(Path.Combine(ButtonIconsFolder, "images/eye.png"), UriKind.Absolute);
             BitmapImage image2 = new BitmapImage(imagepath2);
