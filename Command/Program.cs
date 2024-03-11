@@ -358,13 +358,13 @@ namespace cityjsonToRevit
         }
 
 
-        public static Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX, double transY)
+        public static Tuple<List<XYZ>, XYZ, XYZ> vertBuilder(dynamic cityJ, double transX, double transY, double tranZ)
 
         {
             List<XYZ> vertList = new List<XYZ>();
             double intX = (cityJ.vertices[0][0] * cityJ.transform.scale[0]) + transX;
             double intY = (cityJ.vertices[0][1] * cityJ.transform.scale[0]) + transY;
-            double intZ = (cityJ.vertices[0][2] * cityJ.transform.scale[0]);
+            double intZ = (cityJ.vertices[0][2] * cityJ.transform.scale[0]) + tranZ;
 
             double minX = UnitUtils.ConvertToInternalUnits(intX, UnitTypeId.Meters);
             double maxX = minX;
@@ -376,7 +376,7 @@ namespace cityjsonToRevit
             {
                 double x = (vertex[0] * cityJ.transform.scale[0]) + transX;
                 double y = (vertex[1] * cityJ.transform.scale[1]) + transY;
-                double z = vertex[2] * cityJ.transform.scale[2];
+                double z = (vertex[2] * cityJ.transform.scale[2]) + tranZ;
                 double xx = UnitUtils.ConvertToInternalUnits(x, UnitTypeId.Meters);
                 double yy = UnitUtils.ConvertToInternalUnits(y, UnitTypeId.Meters);
                 double zz = UnitUtils.ConvertToInternalUnits(z, UnitTypeId.Meters);
@@ -481,9 +481,9 @@ namespace cityjsonToRevit
                         if (epsgNo == -1)
                         {
                             TaskDialog.Show("No CRS", "There is no reference system available in CityJSON file.\r\nGeoemetries will be generated in Revit origin's point.");
-                            vertList = vertBuilder(jCity, 0, 0).Item1;
-                            minPoint = vertBuilder(jCity, 0, 0).Item2;
-                            maxPoint = vertBuilder(jCity, 0, 0).Item3;
+                            vertList = vertBuilder(jCity, 0, 0, 0).Item1;
+                            minPoint = vertBuilder(jCity, 0, 0, 0).Item2;
+                            maxPoint = vertBuilder(jCity, 0, 0, 0).Item3;
                         }
                         else
                         {
@@ -511,11 +511,12 @@ namespace cityjsonToRevit
                             }
                             if (closed)
                                 return Result.Failed;
-                            double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1] };
+                            double[] tranC = { jCity.transform.translate[0], jCity.transform.translate[1], jCity.transform.translate[2]};
                             double[] tranR = { lonDeg, latDeg };
                             PointProjectorRev(epsgNo, tranR);
                             tranx = tranC[0] - tranR[0];
                             trany = tranC[1] - tranR[1];
+                            double tranz = tranC[2];
                             if (newLocation)
                             {
                                 using (Command.BasePoints basep = new Command.BasePoints())
@@ -529,9 +530,9 @@ namespace cityjsonToRevit
                                 {
                                     tran.Start();
                                     UpdateSiteLocation(doc, jCity);
-                                    vertList = vertBuilder(jCity, 0, 0).Item1;
-                                    minPoint = vertBuilder(jCity, 0, 0).Item2;
-                                    maxPoint = vertBuilder(jCity, 0, 0).Item3;
+                                    vertList = vertBuilder(jCity, 0, 0, 0).Item1;
+                                    minPoint = vertBuilder(jCity, 0, 0, 0).Item2;
+                                    maxPoint = vertBuilder(jCity, 0, 0, 0).Item3;
                                     tran.Commit();
                                 }
 
@@ -539,9 +540,9 @@ namespace cityjsonToRevit
                             else
                             {
 
-                                vertList = vertBuilder(jCity, tranx, trany).Item1;
-                                minPoint = vertBuilder(jCity, tranx, trany).Item2;
-                                maxPoint = vertBuilder(jCity, tranx, trany).Item3;
+                                vertList = vertBuilder(jCity, tranx, trany, tranz).Item1;
+                                minPoint = vertBuilder(jCity, tranx, trany, tranz).Item2;
+                                maxPoint = vertBuilder(jCity, tranx, trany, tranz).Item3;
                             }
                         }
 
