@@ -114,6 +114,7 @@ namespace cityjsonToRevit
             }
             else
             {
+                lods.Add("Highest for each object");
                 using (lodUserSelect loder = new lodUserSelect(lods))
                 {
                     loder.ShowDialog();
@@ -133,6 +134,21 @@ namespace cityjsonToRevit
             if (cityObjProp.geometry == null)
             {
                 return;
+            }
+            else
+            {
+                if (Lod == "Highest for each object")
+                {
+                    List<float> lods = new List<float>();
+                    foreach (var boundaryGroup in cityObjProp.geometry)
+                    {
+                        if (boundaryGroup.lod != "")
+                        {
+                            lods.Add((float)boundaryGroup.lod);
+                        }
+                    }
+                    Lod = lods.Max().ToString();
+                }
             }
             foreach (var boundaryGroup in cityObjProp.geometry)
             {
