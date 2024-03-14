@@ -41,13 +41,13 @@ namespace cityjsonToRevit
             this.comboBox1.Items.AddRange(lods.ToArray());
             this.comboBox1.Location = new System.Drawing.Point(120, 53);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(134, 21);
+            this.comboBox1.Size = new System.Drawing.Size(134, 23);
             this.comboBox1.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(80, 58);
+            this.label1.Location = new System.Drawing.Point(90, 57);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 1;
