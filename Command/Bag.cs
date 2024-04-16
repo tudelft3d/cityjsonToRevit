@@ -18,6 +18,10 @@ namespace cityjsonToRevit
 
     class Bag : IExternalCommand
     {
+        static bool IsInsideRectangle(double lat, double lon, double minLat, double maxLat, double minLon, double maxLon)
+        {
+            return lat >= minLat && lat <= maxLat && lon >= minLon && lon <= maxLon;
+        }
         public List<string> Tiles(string url)
         {
             List<string> tileUrls = new List<string>();
@@ -55,14 +59,20 @@ namespace cityjsonToRevit
             SiteLocation site = doc.ActiveProjectLocation.GetSiteLocation();
             double latDeg = site.Latitude / Program.angleRatio;
             double lonDeg = site.Longitude / Program.angleRatio;
-            PointLatLng point = new PointLatLng(latDeg, lonDeg);
-            GeoCoderStatusCode geoCoder = GeoCoderStatusCode.Unknow;
-            Placemark? placemark = GMapProviders.OpenStreetMap.GetPlacemark(point, out geoCoder);
-            if (placemark?.CountryName != "Nederland")
+
+            double minLat = 50.75; // Minimum latitude
+            double maxLat = 53.51; // Maximum latitude
+            double minLong = 3.36; // Minimum longitude
+            double maxLong = 7.22; // Maximum longitude
+
+            bool isInsideNetherlands = IsInsideRectangle(latDeg, lonDeg, minLat, maxLat, minLong, maxLong);
+
+            if (!isInsideNetherlands)
             {
-                TaskDialog.Show("Site Loaction out of the Netherlands", "3D BAG service is currently available inside the Netherlands. Please update site location and run the plugin again.");
+                TaskDialog.Show("Site Location out of the Netherlands", "3D BAG service is currently available inside the Netherlands. Please update site location and run the plugin again.");
                 return Result.Failed;
             }
+
             double boxlength = -1;
             using (Command.BagMap bm = new Command.BagMap(latDeg, lonDeg))
             {
@@ -75,7 +85,11 @@ namespace cityjsonToRevit
             }
             List<string> tileUrls = Tiles("https://data.3dbag.nl/api/BAG3D/wfs?&request=GetFeature&typeName=BAG3D:Tiles&outputFormat=json&bbox=" + boundingb(latDeg, lonDeg, boxlength));
             if (tileUrls.Count == 0)
+            {
+                TaskDialog.Show("Site Location out of the Netherlands", "3D BAG service is currently available inside the Netherlands. Please update site location and run the plugin again.");
                 return Result.Failed;
+            }
+
             string cjUrl = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_";
             string lodSpec = lodBagSelecter();
             if (lodSpec == "")
